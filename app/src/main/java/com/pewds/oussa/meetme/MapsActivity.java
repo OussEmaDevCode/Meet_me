@@ -176,11 +176,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onClick(View v) {
                 if(marker!=null) {
-                    double m = mMap.getCameraPosition().zoom;
                     Intent returnIntent = new Intent();
                     returnIntent.putExtra("lat",marker.getPosition().latitude);
                     returnIntent.putExtra("long",marker.getPosition().longitude);
-
+                    returnIntent.putExtra("zoom",mMap.getCameraPosition().zoom);
                     setResult(Activity.RESULT_OK, returnIntent);
                     finish();
                 }

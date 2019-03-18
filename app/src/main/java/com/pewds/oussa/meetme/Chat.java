@@ -105,6 +105,7 @@ public class Chat extends AppCompatActivity {
             if (resultCode == Activity.RESULT_OK) {
                 place.add(data.getDoubleExtra("lat", 0));
                 place.add(data.getDoubleExtra("long", 0));
+                place.add((double) data.getFloatExtra("zoom",0));
                 map.setImageResource(R.drawable.ic_close_black_24dp);
                 stop =true;
             }
@@ -149,7 +150,7 @@ public class Chat extends AppCompatActivity {
                     messageUser.setVisibility(View.GONE);
                     messageTextHim.setVisibility(View.GONE);
                     messageTextMe.setVisibility(View.VISIBLE);
-                    if (model.getMessagelocation()!= null && model.getMessagelocation().size()>1) {
+                    if (model.getMessagelocation()!= null && model.getMessagelocation().size()>2) {
                         locationMe.setVisibility(View.VISIBLE);
                         messageTextMe.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -157,6 +158,7 @@ public class Chat extends AppCompatActivity {
                                 Intent show = new Intent(Chat.this,ShowActivity.class);
                                 show.putExtra("lat",model.getMessagelocation().get(0));
                                 show.putExtra("long",model.getMessagelocation().get(1));
+                                show.putExtra("zoom",model.getMessagelocation().get(2));
                                 startActivity(show);
                             }
                         });
