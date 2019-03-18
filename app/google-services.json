@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "494863595053",
+    "firebase_url": "https://meet-me-79c44.firebaseio.com",
+    "project_id": "meet-me-79c44",
+    "storage_bucket": "meet-me-79c44.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:494863595053:android:bcdb63971cd0f99f",
+        "android_client_info": {
+          "package_name": "com.pewds.oussa.meetme"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "494863595053-1tvkp5vouvprnds699g0qk5rcl00e5c1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pewds.oussa.meetme",
+            "certificate_hash": "23774092b9ff705bf4167638e503f2cf9b311f7e"
+          }
+        },
+        {
+          "client_id": "494863595053-j5thg15fi9batuo3ah6qbkddkg827m5s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBC1VG6yG7qRvwU4STzbPb3djVEF6QBjqU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "494863595053-j5thg15fi9batuo3ah6qbkddkg827m5s.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

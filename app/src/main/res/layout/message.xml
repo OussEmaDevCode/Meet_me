@@ -1,0 +1,86 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="100dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_marginLeft="12dp"
+    android:layout_marginRight="12dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true"
+        android:id="@+id/message_time"
+        android:text="9:00:00"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/message_user"
+        android:layout_marginLeft="8dp"
+        android:layout_below="@id/message_time"
+        android:text="oussama"
+        android:textStyle="normal|bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/message_user"
+        android:layout_marginTop="5dp"
+        android:id="@+id/message_text_me"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textSize="18sp"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"
+        android:paddingTop="8dp"
+        android:layout_alignParentRight="true"
+        android:paddingBottom="8dp"
+        android:background="@drawable/message_me"
+        android:text="Hi it's ok"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/message_text_me"
+        android:id="@+id/place_me"
+        android:layout_marginRight="-20dp"
+        android:layout_marginBottom="-12dp"
+        android:layout_toLeftOf="@id/message_text_me"
+        app:backgroundTint="@android:color/white"
+        app:elevation="8dp"
+        android:visibility="gone"
+        android:src="@drawable/location"
+        app:fabCustomSize="24dp"
+        app:maxImageSize="16dp"/>
+    <TextView
+        android:layout_below="@+id/message_user"
+        android:layout_marginTop="5dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/message_text_him"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textSize="18sp"
+        android:textColor="@android:color/white"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:background="@drawable/message_him"
+        android:text="Hi it's ok"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_alignBottom="@id/message_text_him"
+        app:backgroundTint="@android:color/white"
+        android:layout_marginLeft="-20dp"
+        android:layout_marginBottom="-12dp"
+        android:id="@+id/place_him"
+        app:elevation="8dp"
+        app:maxImageSize="16dp"
+        android:layout_toRightOf="@id/message_text_him"
+        android:src="@drawable/location"
+        app:fabCustomSize="24dp"/>
+
+</RelativeLayout>
