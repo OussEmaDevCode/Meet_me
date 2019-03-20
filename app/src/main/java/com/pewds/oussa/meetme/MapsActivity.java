@@ -39,8 +39,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LocationListener mLocationListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
-            if (location != null) {
+            if (location != null &&mMap!=null) {
                 //drawMarker(location);
+                LatLng gps = new LatLng(location.getLatitude(), location.getLongitude());
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(gps, 15));
                 mLocationManager.removeUpdates(mLocationListener);
             }
         }

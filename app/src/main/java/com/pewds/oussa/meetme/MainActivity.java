@@ -20,6 +20,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity implements OnCompleteListener<AuthResult> {
     FirebaseAuth mAuth;
@@ -126,6 +127,11 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         if (task.isSuccessful()) {
             if (!sign) {
                 addUserNameToUser(task.getResult().getUser());
+                FirebaseDatabase.getInstance()
+                        .getReference()
+                        .child("Users")
+                        .push()
+                        .setValue(new StoredUser(useredit.getText().toString(),task.getResult().getUser().getUid()));
                 Toast.makeText(this, "Signed up", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(this, "welcome " + mAuth.getCurrentUser().getDisplayName(), Toast.LENGTH_SHORT).show();
