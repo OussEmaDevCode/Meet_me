@@ -9,9 +9,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
@@ -136,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
             } else {
                 Toast.makeText(this, "welcome " + mAuth.getCurrentUser().getDisplayName(), Toast.LENGTH_SHORT).show();
             }
-            startActivity(new Intent(MainActivity.this, Chat.class));
+            startActivity(new Intent(MainActivity.this, Principal.class));
         } else {
             if (task.getException() != null) {
                 Toast.makeText(this, task.getException().getLocalizedMessage(), Toast.LENGTH_LONG).show();

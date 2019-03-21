@@ -1,9 +1,11 @@
 package com.pewds.oussa.meetme;
 
+import java.util.List;
+
 public class StoredUser {
     private String userName;
     private String userId;
-    public StoredUser(String userName,String userId){
+    public StoredUser(String userName, String userId){
         this.userId = userId;
         this.userName = userName;
     }
@@ -23,4 +25,5 @@ public StoredUser(){}
     public void setUserName(String userName) {
         this.userName = userName;
     }
+
 }
