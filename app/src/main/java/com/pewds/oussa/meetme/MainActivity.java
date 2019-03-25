@@ -1,6 +1,7 @@
 package com.pewds.oussa.meetme;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -23,7 +24,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
     FirebaseAuth mAuth;
     TextInputEditText email, password, useredit = null;
     Boolean sign = true;
-    private static final int RC_SIGN_IN = 9001;
+    AlertDialog alert;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +34,10 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         password = findViewById(R.id.login_password);
         email = findViewById(R.id.login_mail);
         useredit = findViewById(R.id.login_user);
+        alert = new AlertDialog.Builder(MainActivity.this)
+                .setCancelable(false)
+                .setView(R.layout.progress)
+                .create();
         final TextInputLayout userLayout = findViewById(R.id.login_user_wrapper);
         final Button login = findViewById(R.id.signIn);
         login.setOnClickListener(new View.OnClickListener() {
@@ -40,10 +45,12 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
             public void onClick(View v) {
                 if (sign) {
                     if (checkSignIn(email, password)) {
+                        alert.show();
                         SignIn();
                     }
                 } else {
                     if (checkSignUp(email, password, useredit)) {
+                        alert.show();
                         SignUp();
                     }
                 }
@@ -128,10 +135,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
                         .getReference()
                         .child("Users")
                         .push()
-                        .setValue(new StoredUser(useredit.getText().toString(),task.getResult().getUser().getUid()));
-                Toast.makeText(this, "Signed up", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "welcome " + mAuth.getCurrentUser().getDisplayName(), Toast.LENGTH_SHORT).show();
+                        .setValue(new StoredUser(useredit.getText().toString(), task.getResult().getUser().getUid()));
             }
             startActivity(new Intent(MainActivity.this, Principal.class));
         } else {
@@ -139,6 +143,9 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
                 Toast.makeText(this, task.getException().getLocalizedMessage(), Toast.LENGTH_LONG).show();
             } else {
                 Toast.makeText(this, "Unknow error, Please try again later!", Toast.LENGTH_SHORT).show();
+            }
+            if (alert != null) {
+                alert.dismiss();
             }
         }
     }
@@ -155,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-                            Toast.makeText(getApplicationContext(), "done", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), "Signed Up", Toast.LENGTH_LONG).show();
 
                         }
                     }

@@ -37,21 +37,25 @@ public class Principal extends AppCompatActivity {
     FirebaseAuth mAuth;
     SearchView searchView;
     MenuItem item;
-    Boolean converIs = false;
     View nothing;
     View progressBar;
-
+    Query firsQuery;
+    ValueEventListener fisEvent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
-        if (mAuth.getCurrentUser() == null) {
-            startActivity(new Intent(Principal.this, MainActivity.class));
-            this.finish();
-        } else {
-            Toast.makeText(this, "welcome " + FirebaseAuth.getInstance().getCurrentUser().getDisplayName(), Toast.LENGTH_LONG).show();
-
-        }
+        mAuth.addAuthStateListener(new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                if(firebaseAuth.getCurrentUser()==null){
+                    startActivity(new Intent(Principal.this, MainActivity.class));
+                    finish();
+                }else {
+                    Toast.makeText(getApplicationContext(), "welcome " + FirebaseAuth.getInstance().getCurrentUser().getDisplayName(), Toast.LENGTH_LONG).show();
+                }
+            }
+        });
         setContentView(R.layout.activity_principal);
         semi = findViewById(R.id.semi);
         listOfNames = findViewById(R.id.list_of_names);
@@ -75,6 +79,14 @@ public class Principal extends AppCompatActivity {
             });
         }
 
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == R.id.signOut){
+            mAuth.signOut();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -119,6 +131,14 @@ public class Principal extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if(firsQuery != null) {
+            firsQuery.removeEventListener(fisEvent);
+        }
     }
 
     private void displayNames(String queryText) {
@@ -204,12 +224,21 @@ public class Principal extends AppCompatActivity {
                   @Override
                   public void onClick(View v) {
                       final String FirstCase = mAuth.getCurrentUser().getUid()+model.getUserId();
-                      Query firsQuery =  FirebaseDatabase.getInstance().getReference().child("hi").child(FirstCase);
-                      ValueEventListener fisEvent = new ValueEventListener() {
+                      final String SecoundCase = model.getUserId()+mAuth.getCurrentUser().getUid();
+                      firsQuery =  FirebaseDatabase.getInstance().getReference().child("hi");
+                      fisEvent = new ValueEventListener() {
                           @Override
                           public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                              if (dataSnapshot.exists()){
-                                  converIs =true;
+                              if (dataSnapshot.hasChild(FirstCase)){
+                                  Intent i = new Intent(Principal.this,Chat.class);
+                                  i.putExtra("key",FirstCase);
+                                  startActivity(i);
+                              }else if(dataSnapshot.hasChild(SecoundCase)){
+                                  Intent i = new Intent(Principal.this,Chat.class);
+                                  i.putExtra("key",SecoundCase);
+                                  startActivity(i);
+                              }
+                              else {
                                   Intent i = new Intent(Principal.this,Chat.class);
                                   i.putExtra("key",FirstCase);
                                   startActivity(i);
@@ -222,33 +251,6 @@ public class Principal extends AppCompatActivity {
                           }
                       };
                       firsQuery.addValueEventListener(fisEvent);
-                      final String SecoundCase = model.getUserId()+mAuth.getCurrentUser().getUid();
-                      Query secQuery = FirebaseDatabase.getInstance().getReference().child("hi").child(SecoundCase);
-                      ValueEventListener secEvent = new ValueEventListener() {
-                          @Override
-                          public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                              if (dataSnapshot.exists()){
-                                  converIs = true;
-                                  Intent i = new Intent(Principal.this,Chat.class);
-                                  i.putExtra("key",SecoundCase);
-                                  startActivity(i);
-                              }
-                          }
-
-                          @Override
-                          public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                          }
-                      };
-                      secQuery.addValueEventListener(secEvent);
-
-                      if(!converIs){
-                        Intent i = new Intent(Principal.this,Chat.class);
-                        i.putExtra("key",FirstCase);
-                        startActivity(i);
-                      }
-                      firsQuery.removeEventListener(fisEvent);
-                      secQuery.removeEventListener(secEvent);
                   }
               });
             }
