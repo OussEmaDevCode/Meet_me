@@ -4,12 +4,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -17,6 +23,7 @@ import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseListAdapter;
 import com.firebase.ui.database.FirebaseListOptions;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -41,6 +48,7 @@ public class Principal extends AppCompatActivity {
     View progressBar;
     Query firsQuery;
     ValueEventListener fisEvent;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,15 +56,15 @@ public class Principal extends AppCompatActivity {
         mAuth.addAuthStateListener(new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                if(firebaseAuth.getCurrentUser()==null){
+                if (firebaseAuth.getCurrentUser() == null) {
                     startActivity(new Intent(Principal.this, MainActivity.class));
                     finish();
-                }else {
-                    Toast.makeText(getApplicationContext(), "welcome " + FirebaseAuth.getInstance().getCurrentUser().getDisplayName(), Toast.LENGTH_LONG).show();
                 }
             }
         });
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         setContentView(R.layout.activity_principal);
+
         semi = findViewById(R.id.semi);
         listOfNames = findViewById(R.id.list_of_names);
         layoutparent = findViewById(R.id.list_parent);
@@ -64,26 +72,42 @@ public class Principal extends AppCompatActivity {
         nothing = findViewById(R.id.nothing);
         if (mAuth.getCurrentUser() != null) {
             Query databaseReference = FirebaseDatabase.getInstance().getReference("Users").orderByChild("userId").equalTo(mAuth.getCurrentUser().getUid());
-            databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                        me = ds.getRef();
-                        displayConversations();
+                databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                            me = ds.getRef();
+                            me.keepSynced(true);
+                            displayConversations();
+                        }
                     }
-                }
 
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                }
-            });
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                    }
+                });
+
         }
 
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if(!isOnline()){
+                    Snackbar.make(findViewById(android.R.id.content),"Please check your internet connection",Snackbar.LENGTH_SHORT).show();
+                }
+            }
+        },1000);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == R.id.signOut){
+        if (item.getItemId() == R.id.signOut) {
             mAuth.signOut();
         }
         return super.onOptionsItemSelected(item);
@@ -106,7 +130,7 @@ public class Principal extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                if (newText != "") {
+                if (!newText.equals("") && !newText.equals(" ") && newText.length() > 0 && isOnline()) {
                     displayNames(newText);
                 }
                 return true;
@@ -123,6 +147,7 @@ public class Principal extends AppCompatActivity {
             public boolean onMenuItemActionCollapse(MenuItem menuItem) {
                 layoutparent.setVisibility(View.GONE);
                 semi.setVisibility(View.GONE);
+                listOfNames.setAdapter(null);
                 return true;
             }
         });
@@ -136,7 +161,7 @@ public class Principal extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if(firsQuery != null) {
+        if (firsQuery != null) {
             firsQuery.removeEventListener(fisEvent);
         }
     }
@@ -146,7 +171,7 @@ public class Principal extends AppCompatActivity {
                 .setLayout(R.layout.name)
                 .setQuery(FirebaseDatabase.getInstance().getReference().child("Users").orderByChild("userName")
                         .startAt(queryText)
-                        .endAt(queryText + "\uf8ff"), StoredUser.class)
+                        .endAt(queryText + "\uf8ff").limitToFirst(6), StoredUser.class)
                 .setLifecycleOwner(this)
                 .build();
         Nameadapter = new FirebaseListAdapter<StoredUser>(options) {
@@ -168,7 +193,7 @@ public class Principal extends AppCompatActivity {
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
                                     String key = ds.getKey();
-                                    if(!ds.child("conversation").hasChild(mAuth.getCurrentUser().getUid())) {
+                                    if (!ds.child("conversation").hasChild(mAuth.getCurrentUser().getUid())) {
                                         FirebaseDatabase.getInstance().getReference().child("Users")
                                                 .child(key)
                                                 .child("conversations")
@@ -185,7 +210,7 @@ public class Principal extends AppCompatActivity {
                         me.addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                if(!dataSnapshot.child("conversations").hasChild(model.getUserId())){
+                                if (!dataSnapshot.child("conversations").hasChild(model.getUserId())) {
                                     me.child("conversations").child(model.getUserId()).setValue(model);
                                 }
                             }
@@ -200,7 +225,6 @@ public class Principal extends AppCompatActivity {
                 });
             }
         };
-
         listOfNames.setAdapter(Nameadapter);
         layoutparent.setVisibility(View.VISIBLE);
     }
@@ -209,50 +233,49 @@ public class Principal extends AppCompatActivity {
         final ListView conversations = findViewById(R.id.list_of_conversations);
         FirebaseListOptions<StoredUser> options = new FirebaseListOptions.Builder<StoredUser>()
                 .setLayout(R.layout.conversation)
-                .setQuery(me.child("conversations"),StoredUser.class)
+                .setQuery(me.child("conversations"), StoredUser.class)
                 .setLifecycleOwner(this)
                 .build();
         ConverAdapter = new FirebaseListAdapter<StoredUser>(options) {
             @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
             @Override
             protected void populateView(View v, final StoredUser model, int position) {
-              TextView name = v.findViewById(R.id.conver);
-              View parent = v.findViewById(R.id.parent);
-              name.setText(model.getUserName());
+                TextView name = v.findViewById(R.id.conver);
+                View parent = v.findViewById(R.id.parent);
+                name.setText(model.getUserName());
 
                 parent.setOnClickListener(new View.OnClickListener() {
-                  @Override
-                  public void onClick(View v) {
-                      final String FirstCase = mAuth.getCurrentUser().getUid()+model.getUserId();
-                      final String SecoundCase = model.getUserId()+mAuth.getCurrentUser().getUid();
-                      firsQuery =  FirebaseDatabase.getInstance().getReference().child("hi");
-                      fisEvent = new ValueEventListener() {
-                          @Override
-                          public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                              if (dataSnapshot.hasChild(FirstCase)){
-                                  Intent i = new Intent(Principal.this,Chat.class);
-                                  i.putExtra("key",FirstCase);
-                                  startActivity(i);
-                              }else if(dataSnapshot.hasChild(SecoundCase)){
-                                  Intent i = new Intent(Principal.this,Chat.class);
-                                  i.putExtra("key",SecoundCase);
-                                  startActivity(i);
-                              }
-                              else {
-                                  Intent i = new Intent(Principal.this,Chat.class);
-                                  i.putExtra("key",FirstCase);
-                                  startActivity(i);
-                              }
-                          }
+                    @Override
+                    public void onClick(View v) {
+                        final String FirstCase = mAuth.getCurrentUser().getUid() + model.getUserId();
+                        final String SecoundCase = model.getUserId() + mAuth.getCurrentUser().getUid();
+                        firsQuery = FirebaseDatabase.getInstance().getReference().child("hi");
+                        fisEvent = new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                if (dataSnapshot.hasChild(FirstCase)) {
+                                    Intent i = new Intent(Principal.this, Chat.class);
+                                    i.putExtra("key", FirstCase);
+                                    startActivity(i);
+                                } else if (dataSnapshot.hasChild(SecoundCase)) {
+                                    Intent i = new Intent(Principal.this, Chat.class);
+                                    i.putExtra("key", SecoundCase);
+                                    startActivity(i);
+                                } else {
+                                    Intent i = new Intent(Principal.this, Chat.class);
+                                    i.putExtra("key", FirstCase);
+                                    startActivity(i);
+                                }
+                            }
 
-                          @Override
-                          public void onCancelled(@NonNull DatabaseError databaseError) {
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                          }
-                      };
-                      firsQuery.addValueEventListener(fisEvent);
-                  }
-              });
+                            }
+                        };
+                        firsQuery.addValueEventListener(fisEvent);
+                    }
+                });
             }
         };
         me.child("conversations").addValueEventListener(new ValueEventListener() {
@@ -273,5 +296,11 @@ public class Principal extends AppCompatActivity {
             }
         });
         conversations.setAdapter(ConverAdapter);
+    }
+    public boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 }

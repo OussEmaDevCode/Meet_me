@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/main"
     android:background="@drawable/new_login_gradient">
     <LinearLayout
         android:layout_width="match_parent"
@@ -33,7 +34,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@android:color/white"
-                android:drawableRight="@drawable/ic_person_black_24dp"
+                android:drawableRight="@drawable/ic_person_white_24dp"
                 android:inputType="textEmailAddress"
                 android:maxLines="1"
                 android:paddingLeft="8dp"

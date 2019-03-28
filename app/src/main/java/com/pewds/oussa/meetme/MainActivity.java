@@ -3,8 +3,12 @@ package com.pewds.oussa.meetme;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -12,25 +16,30 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class MainActivity extends AppCompatActivity implements OnCompleteListener<AuthResult> {
     FirebaseAuth mAuth;
     TextInputEditText email, password, useredit = null;
     Boolean sign = true;
     AlertDialog alert;
-
+    View main;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
         setContentView(R.layout.activity_main);
+        main = findViewById(android.R.id.content);
         password = findViewById(R.id.login_password);
         email = findViewById(R.id.login_mail);
         useredit = findViewById(R.id.login_user);
@@ -43,15 +52,36 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (sign) {
-                    if (checkSignIn(email, password)) {
-                        alert.show();
-                        SignIn();
-                    }
-                } else {
-                    if (checkSignUp(email, password, useredit)) {
-                        alert.show();
-                        SignUp();
+                if (isOnline()) {
+                    if (sign) {
+                        if (checkSignIn(email, password)) {
+                            alert.show();
+                            SignIn();
+                        }
+                    } else {
+                        if (checkSignUp(email, password, useredit)) {
+                            alert.show();
+                            FirebaseDatabase.getInstance().getReference().child("Users").addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                                        if (ds.child("userName").getValue().equals(useredit.getText().toString())) {
+                                            useredit.setError("Username already exists");
+                                            alert.dismiss();
+                                            break;
+                                        } else {
+                                            SignUp();
+                                        }
+
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                }
+                            });
+                        }
                     }
                 }
             }
@@ -175,5 +205,15 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
 
     public void SignUp() {
         mAuth.createUserWithEmailAndPassword(email.getText().toString(), password.getText().toString()).addOnCompleteListener(this);
+    }
+
+    public boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        if(!(netInfo != null && netInfo.isConnectedOrConnecting())){
+            Snackbar.make(main,"Please check your internet connection",Snackbar.LENGTH_SHORT).show();
+        }
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 }

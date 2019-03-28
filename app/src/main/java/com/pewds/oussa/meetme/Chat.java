@@ -5,11 +5,16 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
@@ -20,6 +25,8 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -33,6 +40,7 @@ import com.firebase.ui.database.FirebaseListAdapter;
 import com.firebase.ui.database.FirebaseListOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -59,7 +67,7 @@ public class Chat extends AppCompatActivity {
     Boolean stop = false;
     EditText input;
     DatabaseReference conversation;
-
+    ClipboardManager clipboard;
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +77,7 @@ public class Chat extends AppCompatActivity {
             startActivity(new Intent(Chat.this, MainActivity.class));
             this.finish();
         }
+        clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         setContentView(R.layout.activity_chat);
         input = findViewById(R.id.input);
         progressBar = findViewById(R.id.progress);
@@ -79,24 +88,21 @@ public class Chat extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Read the input field and push a new instance
-                // of ChatMessage to the Firebase database
+                if(isOnline()) {
+                    if (input.getText() != null && !input.getText().toString().isEmpty()) {
 
-                if (input.getText() != null && !input.getText().toString().isEmpty()) {
-
-                    conversation.push()
-                            .setValue(new ChatMessage(input.getText().toString(),
-                                    FirebaseAuth.getInstance()
-                                            .getCurrentUser()
-                                            .getDisplayName(), place, mAuth.getCurrentUser().getUid()));
+                        conversation.push()
+                                .setValue(new ChatMessage(input.getText().toString(),
+                                        FirebaseAuth.getInstance()
+                                                .getCurrentUser()
+                                                .getDisplayName(), place, mAuth.getCurrentUser().getUid()));
+                    }
+                    input.clearFocus();
+                    input.setText("");
+                    place.clear();
+                    stop = false;
+                    map.setImageResource(R.drawable.ic_add_location_black_24dp);
                 }
-                // Clear the input
-                input.clearFocus();
-                input.setText("");
-                place.clear();
-                stop = false;
-                map.setImageResource(R.drawable.ic_add_location_black_24dp);
-
             }
         });
         displayChatMessages();
@@ -144,6 +150,7 @@ public class Chat extends AppCompatActivity {
             @Override
             protected void populateView(View v, final ChatMessage model, int position) {
                 // Get references to the views of message.xml
+
                 TextView messageTextMe = v.findViewById(R.id.message_text_me);
                 TextView messageTextHim = v.findViewById(R.id.message_text_him);
                 TextView messageUser = v.findViewById(R.id.message_user);
@@ -206,7 +213,15 @@ public class Chat extends AppCompatActivity {
                 messageTime.setText(time);
             }
         };
-
+        listOfMessages.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                ClipData clip = ClipData.newPlainText("label", adapter.getItem(position).getMessageText());
+                clipboard.setPrimaryClip(clip);
+                Toast.makeText(getApplicationContext(), "Text copied to clip board",Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
         listOfMessages.setAdapter(adapter);
         adapter.notifyDataSetChanged();
         conversation.addValueEventListener(new ValueEventListener() {
@@ -227,6 +242,14 @@ public class Chat extends AppCompatActivity {
             }
         });
     }
-
+    public boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        if(!(netInfo != null && netInfo.isConnectedOrConnecting())){
+            Snackbar.make(findViewById(android.R.id.content),"Please check your internet connection",Snackbar.LENGTH_SHORT).show();
+        }
+        return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
 
 }
