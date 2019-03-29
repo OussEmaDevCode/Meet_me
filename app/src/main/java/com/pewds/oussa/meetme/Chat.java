@@ -84,6 +84,7 @@ public class Chat extends AppCompatActivity {
         nothing = findViewById(R.id.nothing);
         FloatingActionButton fab = findViewById(R.id.fab);
         map = findViewById(R.id.map);
+        setTitle(getIntent().getStringExtra("name"));
         conversation = FirebaseDatabase.getInstance().getReference().child("hi").child(getIntent().getStringExtra("key"));
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -150,16 +151,13 @@ public class Chat extends AppCompatActivity {
             @Override
             protected void populateView(View v, final ChatMessage model, int position) {
                 // Get references to the views of message.xml
-
                 TextView messageTextMe = v.findViewById(R.id.message_text_me);
                 TextView messageTextHim = v.findViewById(R.id.message_text_him);
-                TextView messageUser = v.findViewById(R.id.message_user);
                 TextView messageTime = v.findViewById(R.id.message_time);
                 ImageView locationMe = v.findViewById(R.id.place_me);
                 ImageView locationHim = v.findViewById(R.id.place_him);
                 if (!model.getMessageUserId().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                     //------------------------------------HIM----------------------------------------
-                    messageUser.setVisibility(View.VISIBLE);
                     locationMe.setVisibility(View.GONE);
                     messageTextMe.setVisibility(View.GONE);
                     messageTextHim.setVisibility(View.VISIBLE);
@@ -183,7 +181,6 @@ public class Chat extends AppCompatActivity {
 
                 } else {
                     //------------------------------------ME----------------------------------------
-                    messageUser.setVisibility(View.GONE);
                     messageTextHim.setVisibility(View.GONE);
                     locationHim.setVisibility(View.GONE);
                     messageTextMe.setVisibility(View.VISIBLE);
@@ -205,12 +202,19 @@ public class Chat extends AppCompatActivity {
                     messageTextMe.setText(model.getMessageText());
                 }
                 // Set their text
-                messageUser.setText(model.getMessageUser());
                 String time = DateFormat.format("dd MMM",
                         model.getMessageTime()).toString() + " at " + DateFormat.format("HH:mm",
                         model.getMessageTime()).toString();
                 // Format the date before showing it
                 messageTime.setText(time);
+                if(position != 0) {
+                    ChatMessage mess = adapter.getItem(position - 1);
+                    if(DateFormat.format("HH",mess.getMessageTime()).equals(DateFormat.format("HH",model.getMessageTime()))){
+                        messageTime.setVisibility(View.GONE);
+                    }else{
+                        messageTime.setVisibility(View.VISIBLE);
+                    }
+                }
             }
         };
         listOfMessages.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {

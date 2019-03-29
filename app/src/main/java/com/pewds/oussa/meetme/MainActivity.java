@@ -168,6 +168,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
                         .setValue(new StoredUser(useredit.getText().toString(), task.getResult().getUser().getUid()));
             }
             startActivity(new Intent(MainActivity.this, Principal.class));
+            this.finish();
         } else {
             if (task.getException() != null) {
                 Toast.makeText(this, task.getException().getLocalizedMessage(), Toast.LENGTH_LONG).show();

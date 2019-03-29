@@ -62,9 +62,7 @@ public class Principal extends AppCompatActivity {
                 }
             }
         });
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         setContentView(R.layout.activity_principal);
-
         semi = findViewById(R.id.semi);
         listOfNames = findViewById(R.id.list_of_names);
         layoutparent = findViewById(R.id.list_parent);
@@ -241,39 +239,45 @@ public class Principal extends AppCompatActivity {
             @Override
             protected void populateView(View v, final StoredUser model, int position) {
                 TextView name = v.findViewById(R.id.conver);
+                final TextView last = v.findViewById(R.id.last);
                 View parent = v.findViewById(R.id.parent);
                 name.setText(model.getUserName());
+                final String FirstCase = mAuth.getCurrentUser().getUid() + model.getUserId();
+                final String SecoundCase = model.getUserId() + mAuth.getCurrentUser().getUid();
+                final Intent[] i = {null};
+                firsQuery = FirebaseDatabase.getInstance().getReference().child("hi");
+                fisEvent = new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.hasChild(FirstCase)) {
+                            last(FirstCase,last);
+                            i[0] = new Intent(Principal.this, Chat.class);
+                            i[0].putExtra("key", FirstCase);
+                        } else if (dataSnapshot.hasChild(SecoundCase)) {
+                            last(SecoundCase,last);
+                            i[0] = new Intent(Principal.this, Chat.class);
+                            i[0].putExtra("key", SecoundCase);
+                        } else {
+                            last.setText("new");
+                            i[0] = new Intent(Principal.this, Chat.class);
+                            i[0].putExtra("key", FirstCase);
 
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                };
+                firsQuery.addValueEventListener(fisEvent);
                 parent.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        final String FirstCase = mAuth.getCurrentUser().getUid() + model.getUserId();
-                        final String SecoundCase = model.getUserId() + mAuth.getCurrentUser().getUid();
-                        firsQuery = FirebaseDatabase.getInstance().getReference().child("hi");
-                        fisEvent = new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                if (dataSnapshot.hasChild(FirstCase)) {
-                                    Intent i = new Intent(Principal.this, Chat.class);
-                                    i.putExtra("key", FirstCase);
-                                    startActivity(i);
-                                } else if (dataSnapshot.hasChild(SecoundCase)) {
-                                    Intent i = new Intent(Principal.this, Chat.class);
-                                    i.putExtra("key", SecoundCase);
-                                    startActivity(i);
-                                } else {
-                                    Intent i = new Intent(Principal.this, Chat.class);
-                                    i.putExtra("key", FirstCase);
-                                    startActivity(i);
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                            }
-                        };
-                        firsQuery.addValueEventListener(fisEvent);
+                        if(i[0] != null) {
+                            i[0].putExtra("name",model.getUserName());
+                            startActivity(i[0]);
+                        }
                     }
                 });
             }
@@ -302,5 +306,26 @@ public class Principal extends AppCompatActivity {
                 (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
+    public void last(String conv ,final TextView last){
+        Query lastQuery = FirebaseDatabase.getInstance().getReference().child("hi").child(conv).orderByKey().limitToLast(1);
+        lastQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot ds: dataSnapshot.getChildren()) {
+                    String message = "";
+                    if(ds.child("messageUserId").getValue().toString().equals(mAuth.getCurrentUser().getUid())) {
+                        last.setText("You: "+ds.child("messageText").getValue().toString());
+                    }else {
+                        last.setText(ds.child("messageText").getValue().toString());
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 }
