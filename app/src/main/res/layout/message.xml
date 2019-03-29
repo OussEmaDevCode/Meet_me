@@ -28,6 +28,8 @@
         android:layout_alignParentRight="true"
         android:paddingBottom="8dp"
         android:maxEms="15"
+        android:linksClickable="true"
+        android:autoLink="all"
         android:singleLine="false"
         android:background="@drawable/message_me"
         android:text=" Hi It's ok"/>
@@ -58,6 +60,8 @@
         android:paddingLeft="12dp"
         android:paddingRight="12dp"
         android:paddingTop="8dp"
+        android:linksClickable="true"
+        android:autoLink="all"
         android:maxEms="15"
         android:singleLine="false"
         android:paddingBottom="8dp"
