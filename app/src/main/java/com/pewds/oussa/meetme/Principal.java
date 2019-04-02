@@ -39,7 +39,7 @@ public class Principal extends AppCompatActivity {
     View semi;
     DatabaseReference me;
     private FirebaseListAdapter<StoredUser> Nameadapter;
-    private FirebaseListAdapter<StoredUser> ConverAdapter;
+    private FirebaseListAdapter<conversation> ConverAdapter;
     View layoutparent;
     FirebaseAuth mAuth;
     SearchView searchView;
@@ -185,6 +185,7 @@ public class Principal extends AppCompatActivity {
                         item.collapseActionView();
                         layoutparent.setVisibility(View.GONE);
                         semi.setVisibility(View.GONE);
+                        final String creation = mAuth.getCurrentUser().getUid()+model.getUserId();
                         Query databaseReference = FirebaseDatabase.getInstance().getReference("Users").orderByChild("userId").equalTo(model.getUserId());
                         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
@@ -195,8 +196,8 @@ public class Principal extends AppCompatActivity {
                                         FirebaseDatabase.getInstance().getReference().child("Users")
                                                 .child(key)
                                                 .child("conversations")
-                                                .child(mAuth.getCurrentUser()
-                                                        .getUid()).setValue(new StoredUser(mAuth.getCurrentUser().getDisplayName(), mAuth.getCurrentUser().getUid()));
+                                                .child(mAuth.getCurrentUser().getUid())
+                                                .setValue(new conversation(mAuth.getCurrentUser().getDisplayName(), mAuth.getCurrentUser().getUid(),creation));
                                     }
                                 }
                             }
@@ -209,7 +210,9 @@ public class Principal extends AppCompatActivity {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                 if (!dataSnapshot.child("conversations").hasChild(model.getUserId())) {
-                                    me.child("conversations").child(model.getUserId()).setValue(model);
+                                    me.child("conversations")
+                                            .child(model.getUserId())
+                                            .setValue(new conversation(model.getUserName(),model.getUserId(),creation));
                                 }
                             }
 
@@ -229,55 +232,24 @@ public class Principal extends AppCompatActivity {
 
     private void displayConversations() {
         final ListView conversations = findViewById(R.id.list_of_conversations);
-        FirebaseListOptions<StoredUser> options = new FirebaseListOptions.Builder<StoredUser>()
+        FirebaseListOptions<conversation> options = new FirebaseListOptions.Builder<conversation>()
                 .setLayout(R.layout.conversation)
-                .setQuery(me.child("conversations"), StoredUser.class)
+                .setQuery(me.child("conversations"), conversation.class)
                 .setLifecycleOwner(this)
                 .build();
-        ConverAdapter = new FirebaseListAdapter<StoredUser>(options) {
+        ConverAdapter = new FirebaseListAdapter<conversation>(options) {
             @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
             @Override
-            protected void populateView(View v, final StoredUser model, int position) {
+            protected void populateView(View v, final conversation model, int position) {
                 TextView name = v.findViewById(R.id.conver);
                 final TextView last = v.findViewById(R.id.last);
                 View parent = v.findViewById(R.id.parent);
                 name.setText(model.getUserName());
-                final String FirstCase = mAuth.getCurrentUser().getUid() + model.getUserId();
-                final String SecoundCase = model.getUserId() + mAuth.getCurrentUser().getUid();
-                final Intent[] i = {null};
-                firsQuery = FirebaseDatabase.getInstance().getReference().child("hi");
-                fisEvent = new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.hasChild(FirstCase)) {
-                            last(FirstCase,last);
-                            i[0] = new Intent(Principal.this, Chat.class);
-                            i[0].putExtra("key", FirstCase);
-                        } else if (dataSnapshot.hasChild(SecoundCase)) {
-                            last(SecoundCase,last);
-                            i[0] = new Intent(Principal.this, Chat.class);
-                            i[0].putExtra("key", SecoundCase);
-                        } else {
-                            last.setText("new");
-                            i[0] = new Intent(Principal.this, Chat.class);
-                            i[0].putExtra("key", FirstCase);
-
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                };
-                firsQuery.addValueEventListener(fisEvent);
+                last(model.getConversationId(),last);
                 parent.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if(i[0] != null) {
-                            i[0].putExtra("name",model.getUserName());
-                            startActivity(i[0]);
-                        }
+                        startActivity(new Intent(Principal.this,Chat.class).putExtra("key",model.getConversationId()).putExtra("name",model.getUserName()));
                     }
                 });
             }
@@ -313,7 +285,6 @@ public class Principal extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot ds: dataSnapshot.getChildren()) {
-                    String message = "";
                     if(ds.child("messageUserId").getValue().toString().equals(mAuth.getCurrentUser().getUid())) {
                         last.setText("You: "+ds.child("messageText").getValue().toString());
                     }else {
