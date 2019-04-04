@@ -46,9 +46,6 @@ public class Principal extends AppCompatActivity {
     MenuItem item;
     View nothing;
     View progressBar;
-    Query firsQuery;
-    ValueEventListener fisEvent;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,6 +104,8 @@ public class Principal extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.signOut) {
             mAuth.signOut();
+        }else if(item.getItemId() == R.id.share){
+            startActivity(new Intent(Principal.this,Send.class));
         }
         return super.onOptionsItemSelected(item);
     }
@@ -159,9 +158,6 @@ public class Principal extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (firsQuery != null) {
-            firsQuery.removeEventListener(fisEvent);
-        }
     }
 
     private void displayNames(String queryText) {
