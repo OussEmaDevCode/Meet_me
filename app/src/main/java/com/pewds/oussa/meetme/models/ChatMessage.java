@@ -1,4 +1,4 @@
-package com.pewds.oussa.meetme;
+package com.pewds.oussa.meetme.models;
 
 import java.util.Date;
 import java.util.List;

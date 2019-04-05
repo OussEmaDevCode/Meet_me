@@ -1,4 +1,4 @@
-package com.pewds.oussa.meetme;
+package com.pewds.oussa.meetme.models;
 
 public class conversation {
     private String userName;

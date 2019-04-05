@@ -34,6 +34,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.pewds.oussa.meetme.Maps.MapsActivity;
+import com.pewds.oussa.meetme.Maps.ShowActivity;
+import com.pewds.oussa.meetme.models.ChatMessage;
+
 import java.util.ArrayList;
 import java.util.List;
 

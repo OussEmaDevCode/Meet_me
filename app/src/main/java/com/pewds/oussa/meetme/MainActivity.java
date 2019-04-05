@@ -3,7 +3,6 @@ package com.pewds.oussa.meetme;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 import android.content.Context;
 import android.content.Intent;
@@ -27,6 +26,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.pewds.oussa.meetme.models.StoredUser;
 
 public class MainActivity extends AppCompatActivity implements OnCompleteListener<AuthResult> {
     FirebaseAuth mAuth;

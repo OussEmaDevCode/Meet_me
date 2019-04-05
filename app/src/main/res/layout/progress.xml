@@ -6,11 +6,25 @@
 <ProgressBar
     android:layout_width="wrap_content"
     android:layout_height="wrap_content" />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Wait a secound..."
-        android:layout_marginTop="12dp"
+        android:text="Wait a secound"
+        android:layout_marginTop="2dp"
         android:layout_marginLeft="8dp"
+        android:textSize="18sp"
         android:textColor="@android:color/black"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="We are setting up your account..."
+        android:layout_marginTop="2dp"
+        android:layout_marginLeft="8dp"
+        android:textSize="14sp"
+        android:textColor="@android:color/darker_gray"/>
+    </LinearLayout>
 </LinearLayout>

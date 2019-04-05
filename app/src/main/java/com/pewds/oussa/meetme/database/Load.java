@@ -1,4 +1,4 @@
-package com.pewds.oussa.meetme;
+package com.pewds.oussa.meetme.database;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -7,6 +7,8 @@ import android.os.Bundle;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
+import com.pewds.oussa.meetme.MainActivity;
+import com.pewds.oussa.meetme.Principal;
 
 public class Load extends AppCompatActivity {
 
