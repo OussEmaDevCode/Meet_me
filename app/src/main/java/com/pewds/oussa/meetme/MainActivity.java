@@ -132,12 +132,21 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         } else if (password.getText().toString().length() < 6) {
             password.setError("Password must be longer");
             status = false;
+        } else if(!password.getText().toString().matches(".*\\d.*")) {
+            status = false;
+            password.setError("Password must contain at least a number");
+        }else if(!password.getText().toString().matches("(?s).*[A-Z].*")){
+            status = false;
+            password.setError("Password must contain a capital letter");
         }
         if (user.getText() == null || user.getText().toString().isEmpty()) {
             status = false;
-            user.setError("User can't be empty");
+            user.setError("User name can't be empty");
         } else if (user.getText().toString().length() < 4) {
-            user.setError("User must be longer");
+            user.setError("User name must be longer");
+            status = false;
+        }else if (user.getText().toString().length()>40){
+            user.setError("User name must be shorter");
             status = false;
         }
         if (email.getText() == null || email.getText().toString().isEmpty()) {
