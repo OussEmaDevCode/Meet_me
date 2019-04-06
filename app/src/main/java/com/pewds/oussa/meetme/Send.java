@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -24,6 +25,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -33,10 +35,14 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
+import com.pewds.oussa.meetme.Maps.MapsActivity;
 import com.pewds.oussa.meetme.models.ChatMessage;
 import com.pewds.oussa.meetme.models.conversation;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Send extends AppCompatActivity {
     FirebaseAuth mAuth;
@@ -44,6 +50,9 @@ public class Send extends AppCompatActivity {
     DatabaseReference me;
     View nothing;
     View progressBar;
+    FloatingActionButton map = null;
+    Boolean stop = false;
+    List<Double> place = new ArrayList<>();
     EditText message;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +66,20 @@ public class Send extends AppCompatActivity {
         progressBar = findViewById(R.id.progress);
         nothing = findViewById(R.id.nothing);
         message = findViewById(R.id.message_text);
+        map = findViewById(R.id.map);
+        map.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!stop) {
+                    Intent i = new Intent(Send.this, MapsActivity.class);
+                    startActivityForResult(i, 1);
+                } else {
+                    place.clear();
+                    map.setImageResource(R.drawable.ic_add_location_black_24dp);
+                    stop = false;
+                }
+            }
+        });
         Intent intent = getIntent();
         String action = intent.getAction();
         String type = intent.getType();
@@ -80,6 +103,20 @@ public class Send extends AppCompatActivity {
                 }
             });
 
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == 1) {
+            if (resultCode == Activity.RESULT_OK) {
+                place.add(data.getDoubleExtra("lat", 0));
+                place.add(data.getDoubleExtra("long", 0));
+                place.add((double) data.getFloatExtra("zoom", 0));
+                map.setImageResource(R.drawable.ic_close_black_24dp);
+                stop = true;
+            }
         }
     }
 
@@ -125,7 +162,7 @@ public class Send extends AppCompatActivity {
                                         .setValue(new ChatMessage(message.getText().toString(),
                                                 FirebaseAuth.getInstance()
                                                         .getCurrentUser()
-                                                        .getDisplayName(), null, mAuth.getCurrentUser().getUid()))
+                                                        .getDisplayName(), place, mAuth.getCurrentUser().getUid()))
                                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
