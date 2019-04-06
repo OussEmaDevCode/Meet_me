@@ -139,6 +139,7 @@ public class Chat extends AppCompatActivity {
                 TextView messageTextMe = v.findViewById(R.id.message_text_me);
                 TextView messageTextHim = v.findViewById(R.id.message_text_him);
                 TextView messageTime = v.findViewById(R.id.message_time);
+                View messages = v.findViewById(R.id.messages);
                 ImageView locationMe = v.findViewById(R.id.place_me);
                 ImageView locationHim = v.findViewById(R.id.place_him);
                 if (!model.getMessageUserId().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
@@ -148,16 +149,7 @@ public class Chat extends AppCompatActivity {
                     messageTextHim.setVisibility(View.VISIBLE);
                     if (model.getMessagelocation() != null && model.getMessagelocation().size() > 2) {
                         locationHim.setVisibility(View.VISIBLE);
-                        messageTextHim.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                Intent show = new Intent(Chat.this, ShowActivity.class);
-                                show.putExtra("lat", model.getMessagelocation().get(0));
-                                show.putExtra("long", model.getMessagelocation().get(1));
-                                show.putExtra("zoom", model.getMessagelocation().get(2));
-                                startActivity(show);
-                            }
-                        });
+
                     } else {
                         locationHim.setVisibility(View.GONE);
                     }
@@ -171,16 +163,6 @@ public class Chat extends AppCompatActivity {
                     messageTextMe.setVisibility(View.VISIBLE);
                     if (model.getMessagelocation() != null && model.getMessagelocation().size() > 2) {
                         locationMe.setVisibility(View.VISIBLE);
-                        messageTextMe.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                Intent show = new Intent(Chat.this, ShowActivity.class);
-                                show.putExtra("lat", model.getMessagelocation().get(0));
-                                show.putExtra("long", model.getMessagelocation().get(1));
-                                show.putExtra("zoom", model.getMessagelocation().get(2));
-                                startActivity(show);
-                            }
-                        });
                     } else {
                         locationMe.setVisibility(View.GONE);
                     }
@@ -200,6 +182,17 @@ public class Chat extends AppCompatActivity {
                         messageTime.setVisibility(View.VISIBLE);
                     }
                 }
+
+                messages.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent show = new Intent(Chat.this, ShowActivity.class);
+                        show.putExtra("lat", model.getMessagelocation().get(0));
+                        show.putExtra("long", model.getMessagelocation().get(1));
+                        show.putExtra("zoom", model.getMessagelocation().get(2));
+                        startActivity(show);
+                    }
+                });
             }
         };
         listOfMessages.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {

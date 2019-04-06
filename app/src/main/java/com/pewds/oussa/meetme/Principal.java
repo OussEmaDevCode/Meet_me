@@ -248,6 +248,8 @@ public class Principal extends AppCompatActivity {
                 final TextView last = v.findViewById(R.id.last);
                 View parent = v.findViewById(R.id.parent);
                 name.setText(model.getUserName());
+                last.setText("new !");
+                profile.setImageResource(R.drawable.ic_person_black_24dp);
                 last(model.getConversationId(),last);
                 FirebaseStorage.getInstance().getReference().child("images").child(model.getUserId())
                         .getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
