@@ -3,23 +3,29 @@ package com.pewds.oussa.meetme;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseListAdapter;
 import com.firebase.ui.database.FirebaseListOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -28,8 +34,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
 import com.pewds.oussa.meetme.models.StoredUser;
 import com.pewds.oussa.meetme.models.conversation;
+import com.squareup.picasso.NetworkPolicy;
+import com.squareup.picasso.Picasso;
 
 public class Principal extends AppCompatActivity {
     ListView listOfNames = null;
@@ -235,10 +244,27 @@ public class Principal extends AppCompatActivity {
             @Override
             protected void populateView(View v, final conversation model, int position) {
                 TextView name = v.findViewById(R.id.conver);
+                final CircleImageView profile = v.findViewById(R.id.profile);
                 final TextView last = v.findViewById(R.id.last);
                 View parent = v.findViewById(R.id.parent);
                 name.setText(model.getUserName());
                 last(model.getConversationId(),last);
+                FirebaseStorage.getInstance().getReference().child("images").child(model.getUserId())
+                        .getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        Picasso.get()
+                                .load(uri)
+                                .resize(58, 58)
+                                .centerCrop()
+                                .into(profile);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        profile.setImageResource(R.drawable.ic_person_black_24dp);
+                    }
+                });
                 parent.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
