@@ -4,6 +4,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -33,11 +34,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public static final int LOCATION_UPDATE_MIN_DISTANCE = 10;
     public static final int LOCATION_UPDATE_MIN_TIME = 5000;
     AlertDialog alert = null;
+    Location mLocation = null;
     private LocationListener mLocationListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
             if (location != null &&mMap!=null) {
-                //drawMarker(location);
+                mLocation = location;
                 LatLng gps = new LatLng(location.getLatitude(), location.getLongitude());
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(gps, 15));
                 mLocationManager.removeUpdates(mLocationListener);
@@ -61,7 +63,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     };
     private GoogleMap mMap;
     Marker marker;
-    Location location = null;
+    @SuppressLint("MissingPermission")
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String[] permissions, int[] grantResults) {
@@ -70,8 +72,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     getCurrentLocation();
-                    if(mMap!= null&&location!=null){
-                        LatLng gps = new LatLng(location.getLatitude(), location.getLongitude());
+                    if(mMap!= null&& mLocation !=null){
+                        LatLng gps = new LatLng(mLocation.getLatitude(), mLocation.getLongitude());
                         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(gps, 15));
                         mMap.setMyLocationEnabled(true);
                         mMap.getUiSettings().setMyLocationButtonEnabled(true);
@@ -90,6 +92,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             // permissions this app might request.
         }
     }
+    @SuppressLint("NewApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,8 +103,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         alert = new AlertDialog.Builder(MapsActivity.this)
-                .setTitle("Please enable location")
-                .setMessage("Please let us access your location to make the app function properly")
+                .setTitle("Please enable mLocation")
+                .setMessage("Please let us access your mLocation to make the app function properly")
                 .setIcon(R.drawable.ic_warning_black_24dp)
                 .setCancelable(false)
                 .setPositiveButton("enable", new DialogInterface.OnClickListener() {
@@ -130,6 +133,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      * installed Google Play services and returned to the app.
      */
 
+    @SuppressLint("NewApi")
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -167,7 +171,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.getUiSettings().setMyLocationButtonEnabled(true);
             mMap.getUiSettings().setAllGesturesEnabled(true);
         }
-
+        FloatingActionButton me = findViewById(R.id.me);
+        me.bringToFront();
+        me.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mLocation !=null) {
+                    Intent returnIntent = new Intent();
+                    returnIntent.putExtra("lat", mLocation.getLatitude());
+                    returnIntent.putExtra("long", mLocation.getLongitude());
+                    returnIntent.putExtra("zoom",mMap.getCameraPosition().zoom);
+                    setResult(Activity.RESULT_OK, returnIntent);
+                    finish();
+                } else {
+                    Toast.makeText(getApplicationContext(),"We couldn't define your mLocation",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
         FloatingActionButton done = findViewById(R.id.done);
         done.bringToFront();
@@ -196,8 +216,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 marker = null;
             }
         });
-        if (location != null) {
-            LatLng gps = new LatLng(location.getLatitude(), location.getLongitude());
+
+        if (mLocation != null) {
+            LatLng gps = new LatLng(mLocation.getLatitude(), mLocation.getLongitude());
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(gps, 15));
 
         }
@@ -208,8 +229,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         boolean isNetworkEnabled = mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
         if (!(isGPSEnabled || isNetworkEnabled)) {
-            new AlertDialog.Builder(MapsActivity.this).setTitle("Enable location")
-                    .setMessage("Please enable location to make the app function properly")
+            new AlertDialog.Builder(MapsActivity.this).setTitle("Enable mLocation")
+                    .setMessage("Please enable mLocation to make the app function properly")
                     .setIcon(R.drawable.ic_location_on_black_24dp)
                     .setCancelable(false)
                     .setPositiveButton("enable", new DialogInterface.OnClickListener() {
@@ -228,14 +249,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
                 mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
                         LOCATION_UPDATE_MIN_TIME, LOCATION_UPDATE_MIN_DISTANCE, mLocationListener);
-                location = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                mLocation = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
             }
 
             if (isGPSEnabled) {
                 mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                         LOCATION_UPDATE_MIN_TIME, LOCATION_UPDATE_MIN_DISTANCE, mLocationListener);
-                location = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                mLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
             }
 
