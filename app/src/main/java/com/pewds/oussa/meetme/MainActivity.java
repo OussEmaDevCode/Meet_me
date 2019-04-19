@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         } else if (user.getText().toString().length() < 4) {
             user.setError("User name must be longer");
             status = false;
-        }else if (user.getText().toString().length()>40){
+        }else if (user.getText().toString().length()>25){
             user.setError("User name must be shorter");
             status = false;
         }

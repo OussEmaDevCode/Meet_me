@@ -80,6 +80,10 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/share_info" />
         </receiver>
+
+        <activity
+            android:name=".Intro"
+            android:theme="@style/mainTheme"/>
     </application>
 
 </manifest>
