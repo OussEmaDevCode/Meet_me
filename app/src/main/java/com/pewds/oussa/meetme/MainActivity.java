@@ -10,15 +10,16 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -42,7 +43,8 @@ import com.google.firebase.storage.UploadTask;
 import com.pewds.oussa.meetme.models.StoredUser;
 
 import java.io.ByteArrayOutputStream;
-import java.net.URI;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity implements OnCompleteListener<AuthResult> {
     FirebaseAuth mAuth;
@@ -56,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
     Bitmap image;
     AlertDialog choose = null;
     AlertDialog accept = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,12 +94,12 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
                                         if (ds.child("userName").getValue().equals(useredit.getText().toString())) {
                                             useredit.setError("Username already exists");
                                             alert.dismiss();
-                                            present =true;
+                                            present = true;
                                             break;
                                         }
                                     }
-                                    if (!present){
-                                        ShowDialogBox();
+                                    if (!present) {
+                                        ShowImageChoose();
                                     }
                                 }
 
@@ -129,6 +132,10 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         });
     }
 
+    @Override
+    public void onBackPressed() {
+    }
+
     private Boolean checkSignIn(TextInputEditText email, TextInputEditText password) {
         boolean status = true;
         if (password.getText() == null || password.getText().toString().isEmpty()) {
@@ -156,10 +163,10 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         } else if (password.getText().toString().length() < 6) {
             password.setError("Password must be longer");
             status = false;
-        } else if(!password.getText().toString().matches(".*\\d.*")) {
+        } else if (!password.getText().toString().matches(".*\\d.*")) {
             status = false;
             password.setError("Password must contain at least a number");
-        }else if(!password.getText().toString().matches("(?s).*[A-Z].*")){
+        } else if (!password.getText().toString().matches("(?s).*[A-Z].*")) {
             status = false;
             password.setError("Password must contain a capital letter");
         }
@@ -169,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         } else if (user.getText().toString().length() < 4) {
             user.setError("User name must be longer");
             status = false;
-        }else if (user.getText().toString().length()>25){
+        } else if (user.getText().toString().length() > 25) {
             user.setError("User name must be shorter");
             status = false;
         }
@@ -200,9 +207,9 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
                         .push()
                         .setValue(new StoredUser(useredit.getText().toString(), task.getResult().getUser().getUid()));
                 if (imageUri != null) {
-                    uploadURI(imageUri, task.getResult().getUser().getUid());
+                    uploadURI(task.getResult().getUser().getUid());
                 } else {
-                    uploadBitmap(image, task.getResult().getUser().getUid());
+                    uploadBitmap(task.getResult().getUser().getUid());
                 }
             } else {
                 startActivity(new Intent(MainActivity.this, Principal.class));
@@ -242,44 +249,46 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         ConnectivityManager cm =
                 (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        if(!(netInfo != null && netInfo.isConnectedOrConnecting())){
-            Snackbar.make(main,"Please check your internet connection",Snackbar.LENGTH_SHORT).show();
+        if (!(netInfo != null && netInfo.isConnectedOrConnecting())) {
+            Snackbar.make(main, "Please check your internet connection", Snackbar.LENGTH_SHORT).show();
         }
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
     private void openGallery() {
-        Intent gallery = new Intent(Intent.ACTION_PICK,MediaStore.Images.Media.INTERNAL_CONTENT_URI);
-        startActivityForResult(gallery,PICK_IMAGE);
+        Intent gallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI);
+        startActivityForResult(gallery, PICK_IMAGE);
     }
-    private void openCamera(){
-        Intent takephto =  new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(takephto,TAKE_PHOTO);
+
+    private void openCamera() {
+        Intent takephto = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(takephto, TAKE_PHOTO);
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         choose.dismiss();
-        if(choose.isShowing()) {
+        if (choose.isShowing()) {
             choose.dismiss();
         }
-        if(choose.isShowing()) {
+        if (choose.isShowing()) {
             choose.dismiss();
         }
         //choose form gallery
-        if(resultCode == RESULT_OK && requestCode == PICK_IMAGE ){
+        if (resultCode == RESULT_OK && requestCode == PICK_IMAGE) {
             imageUri = data.getData();
-            ImageDialgo();
+            ImageDialog();
         }
         //take a photo
-        else if(resultCode == RESULT_OK && requestCode == TAKE_PHOTO){
+        else if (resultCode == RESULT_OK && requestCode == TAKE_PHOTO) {
             image = (Bitmap) data.getExtras().get("data");
-            ImageDialgo();
+            ImageDialog();
         }
     }
 
 
-    private void ShowDialogBox(){
+    private void ShowImageChoose() {
         //setting up the dialog box...
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         alertDialogBuilder.setIcon(android.R.drawable.ic_menu_camera);
@@ -303,23 +312,34 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         //...showing it
         choose.show();
     }
-    private  void ImageDialgo(){
+
+    private void ImageDialog() {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.pick_image, null);
         dialogBuilder.setView(dialogView);
-
+        dialogBuilder.setCancelable(false);
+        Button no = dialogView.findViewById(R.id.no);
         Button ok = dialogView.findViewById(R.id.ok);
         CircleImageView circularImageView = dialogView.findViewById(R.id.circular_image);
-        if(image != null){
-            circularImageView.setImageBitmap(image);
-        }else {
-            circularImageView.setImageURI(imageUri);
+        Bitmap bitmap = null;
+        if (image != null) {
+            bitmap = image;
+        } else {
+            try {
+                //BitmapFactory.Options options = new BitmapFactory.Options();
+                //options.inSampleSize = 2;
+                bitmap = getBitmap(imageUri);//BitmapFactory.decodeFile(imageUri.toString(), options);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
         }
+        circularImageView.setImageBitmap(bitmap);
         ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(accept!=null) {
+                if (accept != null) {
                     accept.dismiss();
                     alert.show();
                     SignUp();
@@ -327,13 +347,27 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
 
             }
         });
+        no.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(accept!= null){
+                    image = null;
+                    imageUri = null;
+                    accept.dismiss();
+                    alert.dismiss();
+                    choose.show();
+                }
+            }
+        });
         accept = dialogBuilder.create();
         accept.show();
     }
 
-    private void uploadBitmap(Bitmap bitmap,String id){
+    private void uploadBitmap(String id) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        if (image != null) {
+            image.compress(Bitmap.CompressFormat.JPEG, 20, baos);
+        }
         byte[] data = baos.toByteArray();
         StorageReference filePath = FirebaseStorage.getInstance().getReference().child("images").child(id);
         UploadTask uploadTask = filePath.putBytes(data);
@@ -353,10 +387,20 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
 
     }
 
-    private void uploadURI(Uri file,String id){
+    private void uploadURI(String id) {
         StorageReference filePath = FirebaseStorage.getInstance().getReference().child("images").child(id);
-        UploadTask uploadTask = filePath.putFile(file);
-
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Bitmap bitmap = null;
+        try {
+            if (imageUri != null) {
+                bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 20, baos);
+        byte[] data = baos.toByteArray();
+        UploadTask uploadTask = filePath.putBytes(data);
 // Register observers to listen for when the download is done or if it fails
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
@@ -371,5 +415,62 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
                 finish();
             }
         });
+    }
+
+    private Bitmap getBitmap(Uri uri) {
+        InputStream in = null;
+        try {
+            final int IMAGE_MAX_SIZE = 1200000; // 1.2MP
+            in = getContentResolver().openInputStream(uri);
+            // Decode image size
+            BitmapFactory.Options o = new BitmapFactory.Options();
+            o.inJustDecodeBounds = true;
+            BitmapFactory.decodeStream(in, null, o);
+            in.close();
+
+            int scale = 1;
+            while ((o.outWidth * o.outHeight) * (1 / Math.pow(scale, 2)) >
+                    IMAGE_MAX_SIZE) {
+                scale++;
+            }
+            Log.d("w", "scale = " + scale + ", orig-width: " + o.outWidth + ", orig-height : " + o.outHeight);
+
+            Bitmap bitmap = null;
+            in = getContentResolver().openInputStream(uri);
+            if (scale > 1) {
+                scale--;
+                // scale to max possible inSampleSize that still yields an image
+                // larger than target
+                o = new BitmapFactory.Options();
+                o.inSampleSize = scale;
+                bitmap = BitmapFactory.decodeStream(in, null, o);
+
+                // resize to desired dimensions
+                int height = bitmap.getHeight();
+                int width = bitmap.getWidth();
+                Log.d("w", "1th scale operation dimenions - width: " + width + ", height: " + height);
+
+                double y = Math.sqrt(IMAGE_MAX_SIZE
+                        / (((double) width) / height));
+                double x = (y / height) * width;
+
+                Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, (int) x,
+                        (int) y, true);
+                bitmap.recycle();
+                bitmap = scaledBitmap;
+
+                System.gc();
+            } else {
+                bitmap = BitmapFactory.decodeStream(in);
+            }
+            in.close();
+
+            Log.d("w", "bitmap size - width: " + bitmap.getWidth() + ", height: " +
+                    bitmap.getHeight());
+            return bitmap;
+        } catch (IOException e) {
+            Log.e("w", e.getMessage(), e);
+            return null;
+        }
     }
 }
