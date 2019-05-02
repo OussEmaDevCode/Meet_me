@@ -184,7 +184,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     setResult(Activity.RESULT_OK, returnIntent);
                     finish();
                 } else {
-                    Toast.makeText(getApplicationContext(),"We couldn't define your mLocation",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(),"We couldn't define your location",Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -203,7 +203,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     finish();
                 }
                 else {
-                    Toast.makeText(getApplicationContext(),"Please, choose a place ",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(),"Please choose a place ",Toast.LENGTH_SHORT).show();
                 }
             }
         });
