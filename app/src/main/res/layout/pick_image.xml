@@ -16,18 +16,19 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/circular_image"
         android:layout_centerHorizontal="true">
+        <Button
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:id="@+id/no"
+            android:layout_marginRight="48dp"
+            android:background="@drawable/ic_close_green_24dp"/>
     <Button
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:id="@+id/ok"
-        android:layout_marginRight="48dp"
-        android:background="@drawable/ic_check_green_24dp"/>
-    <Button
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:id="@+id/no"
         android:layout_marginLeft="48dp"
-        android:background="@drawable/ic_close_green_24dp"/>
+        android:background="@drawable/ic_check_green_24dp"/>
+
     </LinearLayout>
 
 </RelativeLayout>
