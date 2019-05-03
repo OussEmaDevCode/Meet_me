@@ -3,6 +3,7 @@ package com.pewds.oussa.meetme;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.content.ClipData;
 import android.content.ClipboardManager;
 
@@ -53,6 +54,7 @@ public class Chat extends AppCompatActivity {
     EditText input;
     DatabaseReference conversation;
     ClipboardManager clipboard;
+
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +76,7 @@ public class Chat extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(isOnline()) {
+                if (isOnline()) {
                     if (input.getText() != null && !input.getText().toString().isEmpty()) {
 
                         conversation.push()
@@ -174,11 +176,11 @@ public class Chat extends AppCompatActivity {
                         model.getMessageTime()).toString();
                 // Format the date before showing it
                 messageTime.setText(time);
-                if(position != 0) {
+                if (position != 0) {
                     ChatMessage mess = adapter.getItem(position - 1);
-                    if(DateFormat.format("HH",mess.getMessageTime()).equals(DateFormat.format("HH",model.getMessageTime()))){
+                    if (DateFormat.format("HH", mess.getMessageTime()).equals(DateFormat.format("HH", model.getMessageTime()))) {
                         messageTime.setVisibility(View.GONE);
-                    }else{
+                    } else {
                         messageTime.setVisibility(View.VISIBLE);
                     }
                 }
@@ -186,24 +188,26 @@ public class Chat extends AppCompatActivity {
                 messages.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Intent show = new Intent(Chat.this, ShowActivity.class);
-                        show.putExtra("lat", model.getMessagelocation().get(0));
-                        show.putExtra("long", model.getMessagelocation().get(1));
-                        show.putExtra("zoom", model.getMessagelocation().get(2));
-                        startActivity(show);
+                        if(model.getMessagelocation() != null) {
+                            Intent show = new Intent(Chat.this, ShowActivity.class);
+                            show.putExtra("lat", model.getMessagelocation().get(0));
+                            show.putExtra("long", model.getMessagelocation().get(1));
+                            show.putExtra("zoom", model.getMessagelocation().get(2));
+                            startActivity(show);
+                        }
+                    }
+                });
+                messages.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        ClipData clip = ClipData.newPlainText("label", model.getMessageText());
+                        clipboard.setPrimaryClip(clip);
+                        Toast.makeText(getApplicationContext(), "Text copied to clip board", Toast.LENGTH_SHORT).show();
+                        return true;
                     }
                 });
             }
         };
-        listOfMessages.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                ClipData clip = ClipData.newPlainText("label", adapter.getItem(position).getMessageText());
-                clipboard.setPrimaryClip(clip);
-                Toast.makeText(getApplicationContext(), "Text copied to clip board",Toast.LENGTH_SHORT).show();
-                return true;
-            }
-        });
         listOfMessages.setAdapter(adapter);
         adapter.notifyDataSetChanged();
         conversation.addValueEventListener(new ValueEventListener() {
@@ -224,12 +228,13 @@ public class Chat extends AppCompatActivity {
             }
         });
     }
+
     public boolean isOnline() {
         ConnectivityManager cm =
                 (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        if(!(netInfo != null && netInfo.isConnectedOrConnecting())){
-            Snackbar.make(findViewById(android.R.id.content),"Please check your internet connection",Snackbar.LENGTH_SHORT).show();
+        if (!(netInfo != null && netInfo.isConnectedOrConnecting())) {
+            Snackbar.make(findViewById(android.R.id.content), "Please check your internet connection", Snackbar.LENGTH_SHORT).show();
         }
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
