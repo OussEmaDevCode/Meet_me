@@ -23,6 +23,7 @@ public class Load extends AppCompatActivity {
         }else {
             if (FirebaseAuth.getInstance().getCurrentUser() == null) {
                 startActivity(new Intent(Load.this, MainActivity.class));
+                finish();
             } else {
                 if (getIntent() != null && getIntent().getStringExtra("type") != null
                         && getIntent().getStringExtra("type").equals("widget")) {

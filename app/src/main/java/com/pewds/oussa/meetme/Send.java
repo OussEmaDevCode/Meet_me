@@ -139,22 +139,11 @@ public class Send extends AppCompatActivity {
                 last.setText("new !");
                 profile.setImageResource(R.drawable.ic_person_black_24dp);
                 last(model.getConversationId(),last);
-                FirebaseStorage.getInstance().getReference().child("images").child(model.getUserId())
-                        .getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                    @Override
-                    public void onSuccess(Uri uri) {
-                        Picasso.get()
-                                .load(uri)
-                                .resize(58, 58)
-                                .centerCrop()
-                                .into(profile);
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception exception) {
-                        profile.setImageResource(R.drawable.ic_person_black_24dp);
-                    }
-                });
+                Picasso.get()
+                        .load(model.getPhotoUri())
+                        .resize(58, 58)
+                        .centerCrop()
+                        .into(profile);
                 parent.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {

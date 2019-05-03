@@ -9,23 +9,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseListAdapter;
 import com.firebase.ui.database.FirebaseListOptions;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -34,10 +30,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
+import com.pewds.oussa.meetme.database.Load;
 import com.pewds.oussa.meetme.models.StoredUser;
 import com.pewds.oussa.meetme.models.conversation;
-import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 public class Principal extends AppCompatActivity {
@@ -71,24 +66,13 @@ public class Principal extends AppCompatActivity {
         layoutparent = findViewById(R.id.list_parent);
         progressBar = findViewById(R.id.progress);
         nothing = findViewById(R.id.nothing);
+        Log.v("brother","auth process");
         if (mAuth.getCurrentUser() != null) {
-            Query databaseReference = FirebaseDatabase.getInstance().getReference("Users").orderByChild("userId").equalTo(mAuth.getCurrentUser().getUid());
-                databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                            me = ds.getRef();
-                            me.keepSynced(true);
-                            displayConversations();
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                    }
-                });
-
-        }
+            Log.v("brother",mAuth.getCurrentUser().getUid());
+            me = FirebaseDatabase.getInstance().getReference().child("Users").child(mAuth.getCurrentUser().getUid());
+            me.keepSynced(true);
+            Log.v("brother","displaying convers");
+            displayConversations();        }
 
     }
 
@@ -188,33 +172,33 @@ public class Principal extends AppCompatActivity {
                         layoutparent.setVisibility(View.GONE);
                         semi.setVisibility(View.GONE);
                         final String creation = mAuth.getCurrentUser().getUid()+model.getUserId();
-                        Query databaseReference = FirebaseDatabase.getInstance().getReference("Users").orderByChild("userId").equalTo(model.getUserId());
-                        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                        FirebaseDatabase.getInstance().getReference("Users")
+                                .child(model.getUserId())
+                                .child("conversations").addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                                    String key = ds.getKey();
-                                    if (!ds.child("conversation").hasChild(mAuth.getCurrentUser().getUid())) {
-                                        FirebaseDatabase.getInstance().getReference().child("Users")
-                                                .child(key)
-                                                .child("conversations")
-                                                .child(mAuth.getCurrentUser().getUid())
-                                                .setValue(new conversation(mAuth.getCurrentUser().getDisplayName(), mAuth.getCurrentUser().getUid(),creation));
-                                    }
+                            public void onDataChange(DataSnapshot snapshot) {
+                                if (!snapshot.hasChild(mAuth.getCurrentUser().getUid())) {
+                                    FirebaseDatabase.getInstance().getReference().child("Users")
+                                            .child(model.getUserId())
+                                            .child("conversations")
+                                            .child(mAuth.getCurrentUser().getUid())
+                                            .setValue(new conversation(mAuth.getCurrentUser().getDisplayName(),creation,
+                                                    mAuth.getCurrentUser().getPhotoUrl().toString()));
                                 }
                             }
 
                             @Override
-                            public void onCancelled(DatabaseError databaseError) {
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
                             }
                         });
-                        me.addValueEventListener(new ValueEventListener() {
+                        me.child("conversations").addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                if (!dataSnapshot.child("conversations").hasChild(model.getUserId())) {
+                                if (!dataSnapshot.hasChild(model.getUserId())) {
                                     me.child("conversations")
                                             .child(model.getUserId())
-                                            .setValue(new conversation(model.getUserName(),model.getUserId(),creation));
+                                            .setValue(new conversation(model.getUserName(),creation, model.getPhotoUri()));
                                 }
                             }
 
@@ -251,22 +235,15 @@ public class Principal extends AppCompatActivity {
                 last.setText("new !");
                 profile.setImageResource(R.drawable.ic_person_black_24dp);
                 last(model.getConversationId(),last);
-                FirebaseStorage.getInstance().getReference().child("images").child(model.getUserId())
-                        .getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                    @Override
-                    public void onSuccess(Uri uri) {
-                        Picasso.get()
-                                .load(uri)
-                                .resize(58, 58)
-                                .centerCrop()
-                                .into(profile);
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception exception) {
-                        profile.setImageResource(R.drawable.ic_person_black_24dp);
-                    }
-                });
+                if(model.getPhotoUri()!= null && !model.getPhotoUri().equals("")) {
+                    Picasso.get()
+                            .load(model.getPhotoUri())
+                            .resize(58, 58)
+                            .centerCrop()
+                            .into(profile);
+                }else {
+                    profile.setImageResource(R.drawable.ic_person_black_24dp);
+                }
                 parent.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {

@@ -2,23 +2,14 @@ package com.pewds.oussa.meetme.models;
 
 public class conversation {
     private String userName;
-    private String userId;
     private String conversationId;
-
-    public conversation(String userName, String userId, String conversationId){
-        this.userId = userId;
+    private String PhotoUri;
+    public conversation(String userName, String conversationId, String photoUri){
         this.userName = userName;
         this.conversationId = conversationId;
+        this.PhotoUri = photoUri;
     }
     public conversation(){}
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
 
     public String getUserName() {
         return userName;
@@ -34,5 +25,13 @@ public class conversation {
 
     public void setConversationId(String conversationId) {
         this.conversationId = conversationId;
+    }
+
+    public String getPhotoUri() {
+        return PhotoUri;
+    }
+
+    public void setPhotoUri(String photoUri) {
+        this.PhotoUri = photoUri;
     }
 }

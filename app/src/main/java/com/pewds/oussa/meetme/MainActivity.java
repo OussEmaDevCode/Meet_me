@@ -201,15 +201,10 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         if (task.isSuccessful()) {
             if (!sign) {
                 addUserNameToUser(task.getResult().getUser());
-                FirebaseDatabase.getInstance()
-                        .getReference()
-                        .child("Users")
-                        .push()
-                        .setValue(new StoredUser(useredit.getText().toString(), task.getResult().getUser().getUid()));
                 if (imageUri != null) {
-                    uploadURI(task.getResult().getUser().getUid());
+                    uploadURI(task.getResult().getUser());
                 } else {
-                    uploadBitmap(task.getResult().getUser().getUid());
+                    uploadBitmap(task.getResult().getUser());
                 }
             } else {
                 startActivity(new Intent(MainActivity.this, Principal.class));
@@ -363,13 +358,13 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         accept.show();
     }
 
-    private void uploadBitmap(String id) {
+    private void uploadBitmap(final FirebaseUser user) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         if (image != null) {
             image.compress(Bitmap.CompressFormat.JPEG, 20, baos);
         }
         byte[] data = baos.toByteArray();
-        StorageReference filePath = FirebaseStorage.getInstance().getReference().child("images").child(id);
+        final StorageReference filePath = FirebaseStorage.getInstance().getReference().child("images").child(user.getUid());
         UploadTask uploadTask = filePath.putBytes(data);
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
@@ -379,16 +374,34 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                Toast.makeText(getApplicationContext(), "Signed Up", Toast.LENGTH_LONG).show();
-                startActivity(new Intent(MainActivity.this, Principal.class));
-                finish();
+                filePath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                                .setPhotoUri(uri)
+                                .build();
+                        user.updateProfile(profileUpdates);
+                        FirebaseDatabase.getInstance()
+                                .getReference()
+                                .child("Users")
+                                .child(user.getUid())
+                                .setValue(new StoredUser(useredit.getText().toString(), user.getUid(), uri.toString()));
+                        Toast.makeText(getApplicationContext(), "Signed Up", Toast.LENGTH_LONG).show();
+                        startActivity(new Intent(MainActivity.this, Principal.class));
+                        finish();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                    }
+                });
             }
         });
 
     }
 
-    private void uploadURI(String id) {
-        StorageReference filePath = FirebaseStorage.getInstance().getReference().child("images").child(id);
+    private void uploadURI(final FirebaseUser user) {
+        final StorageReference filePath = FirebaseStorage.getInstance().getReference().child("images").child(user.getUid());
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         Bitmap bitmap = null;
         try {
@@ -410,9 +423,27 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                Toast.makeText(getApplicationContext(), "Signed Up", Toast.LENGTH_LONG).show();
-                startActivity(new Intent(MainActivity.this, Principal.class));
-                finish();
+                filePath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                                .setPhotoUri(uri)
+                                .build();
+                        user.updateProfile(profileUpdates);
+                        FirebaseDatabase.getInstance()
+                                .getReference()
+                                .child("Users")
+                                .child(user.getUid())
+                                .setValue(new StoredUser(useredit.getText().toString(), user.getUid(), uri.toString()));
+                        Toast.makeText(getApplicationContext(), "Signed Up", Toast.LENGTH_LONG).show();
+                        startActivity(new Intent(MainActivity.this, Principal.class));
+                        finish();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                    }
+                });
             }
         });
     }

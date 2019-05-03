@@ -1,13 +1,13 @@
 package com.pewds.oussa.meetme.models;
 
-import java.util.List;
-
 public class StoredUser {
     private String userName;
     private String userId;
-    public StoredUser(String userName, String userId){
+    private String photoUri;
+    public StoredUser(String userName, String userId, String photoUri){
         this.userId = userId;
         this.userName = userName;
+        this.photoUri = photoUri;
     }
 public StoredUser(){}
     public String getUserId() {
@@ -26,4 +26,11 @@ public StoredUser(){}
         this.userName = userName;
     }
 
+    public String getPhotoUri() {
+        return photoUri;
+    }
+
+    public void setPhotoUri(String photoUri) {
+        this.photoUri = photoUri;
+    }
 }
