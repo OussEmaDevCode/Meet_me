@@ -17,8 +17,8 @@
 
     <application
         android:allowBackup="true"
-        android:hardwareAccelerated="false"
         android:largeHeap="true"
+        android:hardwareAccelerated="false"
         android:supportsRtl="true"
         android:icon="@mipmap/meetme"
         android:label="@string/app_name"
