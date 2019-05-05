@@ -5,7 +5,10 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -93,7 +96,23 @@ public class Principal extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.signOut) {
-            mAuth.signOut();
+            final AlertDialog.Builder signOut = new AlertDialog.Builder(this).setTitle("Sign out")
+                    .setMessage("Are you sure you want to sign out ?")
+                    .setIcon(R.drawable.exit_black)
+                    .setCancelable(true)
+                    .setPositiveButton("yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            mAuth.signOut();
+                        }
+                    }).setNegativeButton("no", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    });
+            AlertDialog a = signOut.create();
+            a.show();
         }else if(item.getItemId() == R.id.share){
             startActivity(new Intent(Principal.this,Send.class));
         }
