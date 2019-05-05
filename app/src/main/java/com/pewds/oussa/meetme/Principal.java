@@ -22,6 +22,7 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseListAdapter;
 import com.firebase.ui.database.FirebaseListOptions;
@@ -186,38 +187,28 @@ public class Principal extends AppCompatActivity {
                 name.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        searchView.clearFocus();
-                        item.collapseActionView();
-                        layoutparent.setVisibility(View.GONE);
-                        semi.setVisibility(View.GONE);
                         final String creation = mAuth.getCurrentUser().getUid()+model.getUserId();
-                        FirebaseDatabase.getInstance().getReference("Users")
-                                .child(model.getUserId())
-                                .child("conversations").addListenerForSingleValueEvent(new ValueEventListener() {
+                        me.child("conversations").addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
-                            public void onDataChange(DataSnapshot snapshot) {
-                                if (!snapshot.hasChild(mAuth.getCurrentUser().getUid())) {
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                //-----------------------me------------------------------------
+                                if (!dataSnapshot.hasChild(model.getUserId())) {
+
+                                    me.child("conversations")
+                                            .child(model.getUserId())
+                                            .setValue(new conversation(model.getUserName(),creation, model.getPhotoUri()));
+                                    //---------------------------him----------------------------
                                     FirebaseDatabase.getInstance().getReference().child("Users")
                                             .child(model.getUserId())
                                             .child("conversations")
                                             .child(mAuth.getCurrentUser().getUid())
                                             .setValue(new conversation(mAuth.getCurrentUser().getDisplayName(),creation,
                                                     mAuth.getCurrentUser().getPhotoUrl().toString()));
-                                }
-                            }
+                                    Toast.makeText(getApplicationContext(),"You're now friend with "+model.getUserName(),Toast.LENGTH_LONG).show();
 
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
+                                }else {
+                                    Toast.makeText(getApplicationContext(),"You're already friend with "+model.getUserName(),Toast.LENGTH_LONG).show();
 
-                            }
-                        });
-                        me.child("conversations").addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                if (!dataSnapshot.hasChild(model.getUserId())) {
-                                    me.child("conversations")
-                                            .child(model.getUserId())
-                                            .setValue(new conversation(model.getUserName(),creation, model.getPhotoUri()));
                                 }
                             }
 
