@@ -30,8 +30,8 @@
                           <map>
                             <entry key="assetSourceType" value="FILE" />
                             <entry key="color" value="ffffff" />
-                            <entry key="outputName" value="ic_exit" />
-                            <entry key="sourceFile" value="C:\social svg\exit.svg" />
+                            <entry key="outputName" value="ic_speech_bubble" />
+                            <entry key="sourceFile" value="C:\social svg\speech-bubble.svg" />
                           </map>
                         </option>
                       </PersistentState>
