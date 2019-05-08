@@ -85,6 +85,7 @@ public class Send extends AppCompatActivity {
         String type = intent.getType();
         if ("android.intent.action.SEND".equals(action) && type != null && "text/plain".equals(type)) {
             message.setText(intent.getStringExtra("android.intent.extra.TEXT"));
+            setTitle("Share");
         }
         if (mAuth.getCurrentUser() != null) {
             Query databaseReference = FirebaseDatabase.getInstance().getReference("Users").orderByChild("userId").equalTo(mAuth.getCurrentUser().getUid());
