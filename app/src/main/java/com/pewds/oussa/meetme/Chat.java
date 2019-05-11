@@ -51,7 +51,7 @@ public class Chat extends AppCompatActivity {
     FloatingActionButton map = null;
     View nothing;
     Boolean stop = false;
-    EditText input;
+    MonitoringEditText input;
     DatabaseReference conversation;
     ClipboardManager clipboard;
 
@@ -107,7 +107,23 @@ public class Chat extends AppCompatActivity {
                 }
             }
         });
-        //--------------------------------------------------------------------------
+        input.addListener(new MonitoringEditText.GoEditTextListener() {
+            @Override
+            public void onUpdate() {
+                if(clipboard.getPrimaryClip() != null) {
+                    String paste = clipboard.getPrimaryClip().getItemAt(0).getText().toString();
+                    String[] data = paste.split(",");
+                    input.setText(data[0]);
+                    if(data.length > 2) {
+                        place.add(Double.valueOf(data[1]));
+                        place.add(Double.valueOf(data[2]));
+                        place.add(Double.valueOf(data[3]));
+                        map.setImageResource(R.drawable.ic_close_black_24dp);
+                        stop = true;
+                    }
+                }
+            }
+        });
     }
 
 
@@ -157,6 +173,23 @@ public class Chat extends AppCompatActivity {
                     }
 
                     messageTextHim.setText(model.getMessageText());
+                    messageTextHim.setOnLongClickListener(new View.OnLongClickListener() {
+                        @Override
+                        public boolean onLongClick(View v) {
+                            ClipData clip;
+                            if(model.getMessagelocation() != null) {
+                                clip = ClipData.newPlainText("label", model.getMessageText() + "," +
+                                        model.getMessagelocation().get(0) + "," +
+                                        model.getMessagelocation().get(1) + "," +
+                                        model.getMessagelocation().get(2));
+                            }else {
+                                clip = ClipData.newPlainText("label",model.getMessageText());
+                            }
+                            clipboard.setPrimaryClip(clip);
+                            Toast.makeText(getApplicationContext(), "Text copied to clip board", Toast.LENGTH_SHORT).show();
+                            return true;
+                        }
+                    });
 
                 } else {
                     //------------------------------------ME----------------------------------------
@@ -169,6 +202,23 @@ public class Chat extends AppCompatActivity {
                         locationMe.setVisibility(View.GONE);
                     }
                     messageTextMe.setText(model.getMessageText());
+                    messageTextMe.setOnLongClickListener(new View.OnLongClickListener() {
+                        @Override
+                        public boolean onLongClick(View v) {
+                            ClipData clip;
+                            if(model.getMessagelocation() != null) {
+                                clip = ClipData.newPlainText("label", model.getMessageText() + "," +
+                                        model.getMessagelocation().get(0) + "," +
+                                        model.getMessagelocation().get(1) + "," +
+                                        model.getMessagelocation().get(2));
+                            }else {
+                                clip = ClipData.newPlainText("label",model.getMessageText());
+                            }
+                            clipboard.setPrimaryClip(clip);
+                            Toast.makeText(getApplicationContext(), "Text copied to clip board", Toast.LENGTH_SHORT).show();
+                            return true;
+                        }
+                    });
                 }
                 // Set their text
                 String time = DateFormat.format("dd MMM",
@@ -195,15 +245,6 @@ public class Chat extends AppCompatActivity {
                             show.putExtra("zoom", model.getMessagelocation().get(2));
                             startActivity(show);
                         }
-                    }
-                });
-                messages.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View v) {
-                        ClipData clip = ClipData.newPlainText("label", model.getMessageText());
-                        clipboard.setPrimaryClip(clip);
-                        Toast.makeText(getApplicationContext(), "Text copied to clip board", Toast.LENGTH_SHORT).show();
-                        return true;
                     }
                 });
             }
