@@ -1,4 +1,4 @@
-package com.pewds.oussa.meetme;
+package com.pewds.oussa.pleixt;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -7,7 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.RemoteViews;
 
-import com.pewds.oussa.meetme.database.Load;
+import com.pewds.oussa.pleixt.database.Load;
 
 /**
  * Implementation of App Widget functionality.

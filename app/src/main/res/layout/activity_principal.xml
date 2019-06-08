@@ -27,7 +27,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/chats"
-            android:text="You don't have conversations for the moment"
+            android:textAlignment="center"
+            android:maxEms="18"
+            android:text="You don't have any conversations for the moment, try finding friends."
             android:visibility="visible"
             />
     </RelativeLayout>

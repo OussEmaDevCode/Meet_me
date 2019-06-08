@@ -1,4 +1,4 @@
-package com.pewds.oussa.meetme;
+package com.pewds.oussa.pleixt;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -7,7 +7,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import io.fabric.sdk.android.Fabric;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -36,9 +35,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.pewds.oussa.meetme.database.Load;
-import com.pewds.oussa.meetme.models.StoredUser;
-import com.pewds.oussa.meetme.models.conversation;
+import com.pewds.oussa.pleixt.models.StoredUser;
+import com.pewds.oussa.pleixt.models.conversation;
 import com.squareup.picasso.Picasso;
 
 public class Principal extends AppCompatActivity {
@@ -128,6 +126,7 @@ public class Principal extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu, menu);
         item = menu.findItem(R.id.search);
         searchView = (SearchView) item.getActionView();
+        searchView.setQueryHint("look for friends");
         searchView.onActionViewExpanded();
         searchView.setSubmitButtonEnabled(false);
         searchView.setQueryRefinementEnabled(false);

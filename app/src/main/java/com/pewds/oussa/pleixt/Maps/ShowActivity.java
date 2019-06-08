@@ -1,4 +1,4 @@
-package com.pewds.oussa.meetme.Maps;
+package com.pewds.oussa.pleixt.Maps;
 
 import androidx.fragment.app.FragmentActivity;
 
@@ -11,7 +11,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.pewds.oussa.meetme.R;
+import com.pewds.oussa.pleixt.R;
 
 public class ShowActivity extends FragmentActivity implements OnMapReadyCallback {
 

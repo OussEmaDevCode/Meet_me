@@ -1,4 +1,4 @@
-package com.pewds.oussa.meetme;
+package com.pewds.oussa.pleixt;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -10,7 +10,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -22,8 +21,6 @@ import android.widget.Toast;
 import com.firebase.ui.database.FirebaseListAdapter;
 import com.firebase.ui.database.FirebaseListOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -34,11 +31,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.pewds.oussa.meetme.Maps.MapsActivity;
-import com.pewds.oussa.meetme.models.ChatMessage;
-import com.pewds.oussa.meetme.models.conversation;
-import com.squareup.picasso.NetworkPolicy;
+import com.pewds.oussa.pleixt.Maps.MapsActivity;
+import com.pewds.oussa.pleixt.models.ChatMessage;
+import com.pewds.oussa.pleixt.models.conversation;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;

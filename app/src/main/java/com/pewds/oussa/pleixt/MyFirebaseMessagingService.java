@@ -1,4 +1,4 @@
-package com.pewds.oussa.meetme;
+package com.pewds.oussa.pleixt;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -24,7 +24,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Intent intent = new Intent(this, Principal.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
-        Bitmap b = BitmapFactory.decodeResource(getResources(),R.mipmap.meetme);
+        Bitmap b = BitmapFactory.decodeResource(getResources(),R.mipmap.pleixt);
         Uri sound = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.notify);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "Meet Me")
                 .setLargeIcon(b)

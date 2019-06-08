@@ -1,4 +1,4 @@
-package com.pewds.oussa.meetme.models;
+package com.pewds.oussa.pleixt.models;
 
 public class StoredUser {
     private String userName;

@@ -1,16 +1,11 @@
-package com.pewds.oussa.meetme;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
+package com.pewds.oussa.pleixt;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 
 import com.chyrta.onboarder.OnboarderActivity;
 import com.chyrta.onboarder.OnboarderPage;
-import com.pewds.oussa.meetme.database.Load;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.pewds.oussa.meetme;
+package com.pewds.oussa.pleixt;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -18,8 +18,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -35,9 +33,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.pewds.oussa.meetme.Maps.MapsActivity;
-import com.pewds.oussa.meetme.Maps.ShowActivity;
-import com.pewds.oussa.meetme.models.ChatMessage;
+import com.pewds.oussa.pleixt.Maps.MapsActivity;
+import com.pewds.oussa.pleixt.Maps.ShowActivity;
+import com.pewds.oussa.pleixt.models.ChatMessage;
 
 import java.util.ArrayList;
 import java.util.List;
