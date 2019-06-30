@@ -1,4 +1,4 @@
-package com.pewds.oussa.pleixt;
+package com.pewds.oussa.Pox;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.fabric.sdk.android.Fabric;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -15,10 +16,10 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -35,8 +36,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.pewds.oussa.pleixt.models.StoredUser;
-import com.pewds.oussa.pleixt.models.conversation;
+import com.pewds.oussa.Pox.models.StoredUser;
+import com.pewds.oussa.Pox.models.conversation;
 import com.squareup.picasso.Picasso;
 
 public class Principal extends AppCompatActivity {
@@ -71,13 +72,11 @@ public class Principal extends AppCompatActivity {
         layoutparent = findViewById(R.id.list_parent);
         progressBar = findViewById(R.id.progress);
         nothing = findViewById(R.id.nothing);
-        Log.v("brother","auth process");
         if (mAuth.getCurrentUser() != null) {
-            Log.v("brother",mAuth.getCurrentUser().getUid());
             me = FirebaseDatabase.getInstance().getReference().child("Users").child(mAuth.getCurrentUser().getUid());
             me.keepSynced(true);
-            Log.v("brother","displaying convers");
-            displayConversations();        }
+            displayConversations();
+        }
 
     }
 
@@ -149,6 +148,7 @@ public class Principal extends AppCompatActivity {
             @Override
             public boolean onMenuItemActionExpand(MenuItem menuItem) {
                 semi.setVisibility(View.VISIBLE);
+                searchView.requestFocus();
                 return true;
             }
 
@@ -157,6 +157,7 @@ public class Principal extends AppCompatActivity {
                 layoutparent.setVisibility(View.GONE);
                 semi.setVisibility(View.GONE);
                 listOfNames.setAdapter(null);
+                hideKeyboard(Principal.this);
                 return true;
             }
         });
@@ -200,12 +201,20 @@ public class Principal extends AppCompatActivity {
                                             .child(model.getUserId())
                                             .setValue(new conversation(model.getUserName(),creation, model.getPhotoUri()));
                                     //---------------------------him----------------------------
-                                    FirebaseDatabase.getInstance().getReference().child("Users")
-                                            .child(model.getUserId())
-                                            .child("conversations")
-                                            .child(mAuth.getCurrentUser().getUid())
-                                            .setValue(new conversation(mAuth.getCurrentUser().getDisplayName(),creation,
-                                                    mAuth.getCurrentUser().getPhotoUrl().toString()));
+                                    if(mAuth.getCurrentUser().getPhotoUrl() != null) {
+                                        FirebaseDatabase.getInstance().getReference().child("Users")
+                                                .child(model.getUserId())
+                                                .child("conversations")
+                                                .child(mAuth.getCurrentUser().getUid())
+                                                .setValue(new conversation(mAuth.getCurrentUser().getDisplayName(), creation,
+                                                        mAuth.getCurrentUser().getPhotoUrl().toString()));
+                                    }else {
+                                        FirebaseDatabase.getInstance().getReference().child("Users")
+                                                .child(model.getUserId())
+                                                .child("conversations")
+                                                .child(mAuth.getCurrentUser().getUid())
+                                                .setValue(new conversation(mAuth.getCurrentUser().getDisplayName(), creation, " "));
+                                    }
                                     Toast.makeText(getApplicationContext(),"You're now friend with "+model.getUserName(),Toast.LENGTH_LONG).show();
 
                                 }else {
@@ -247,7 +256,7 @@ public class Principal extends AppCompatActivity {
                 last.setText("new !");
                 profile.setImageResource(R.drawable.ic_person_black_24dp);
                 last(model.getConversationId(),last);
-                if(model.getPhotoUri()!= null && !model.getPhotoUri().equals("")) {
+                if(model.getPhotoUri()!= null && !model.getPhotoUri().equals(" ")) {
                     Picasso.get()
                             .load(model.getPhotoUri())
                             .resize(58, 58)
@@ -308,5 +317,17 @@ public class Principal extends AppCompatActivity {
 
             }
         });
+    }
+    public static void hideKeyboard(Activity activity) {
+        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //Find the currently focused view, so we can grab the correct window token from it.
+        View view = activity.getCurrentFocus();
+        //If no view currently has focus, create a new one, just so we can grab a window token from it
+        if (view == null) {
+            view = new View(activity);
+        }
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 }

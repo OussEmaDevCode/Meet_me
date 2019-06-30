@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.pewds.oussa.pleixt">
+    package="com.pewds.oussa.Pox">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -19,9 +19,9 @@
         android:roundIcon="@mipmap/pleixt"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.pewds.oussa.pleixt.MainActivity"
+            android:name="com.pewds.oussa.Pox.MainActivity"
             android:theme="@style/mainTheme" />
-        <activity android:name="com.pewds.oussa.pleixt.Chat" />
+        <activity android:name="com.pewds.oussa.Pox.Chat" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -35,14 +35,14 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name="com.pewds.oussa.pleixt.Maps.MapsActivity"
+            android:name="com.pewds.oussa.Pox.Maps.MapsActivity"
             android:label="@string/title_activity_maps" />
         <activity
-            android:name="com.pewds.oussa.pleixt.Maps.ShowActivity"
+            android:name="com.pewds.oussa.Pox.Maps.ShowActivity"
             android:label="@string/title_activity_maps2" />
-        <activity android:name="com.pewds.oussa.pleixt.Principal" />
+        <activity android:name="com.pewds.oussa.Pox.Principal" />
         <activity
-            android:name="com.pewds.oussa.pleixt.database.Load"
+            android:name="com.pewds.oussa.Pox.database.Load"
             android:theme="@style/mainTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -55,7 +55,7 @@
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
         </activity>
-        <activity android:name="com.pewds.oussa.pleixt.Send">
+        <activity android:name="com.pewds.oussa.Pox.Send">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
 
@@ -65,7 +65,7 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name="com.pewds.oussa.pleixt.Share">
+        <receiver android:name="com.pewds.oussa.Pox.Share">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -76,10 +76,10 @@
         </receiver>
 
         <activity
-            android:name="com.pewds.oussa.pleixt.Intro"
+            android:name="com.pewds.oussa.Pox.Intro"
             android:theme="@style/mainTheme"/>
         <service
-            android:name="com.pewds.oussa.pleixt.MyFirebaseMessagingService"
+            android:name="com.pewds.oussa.Pox.MyFirebaseMessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

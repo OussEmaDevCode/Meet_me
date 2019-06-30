@@ -1,0 +1,42 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/new_login_gradient"
+    tools:context="com.pewds.oussa.Pox.fragments.Image">
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_centerInParent="true">
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:layout_width="260dp"
+        android:layout_height="260dp"
+        android:id="@+id/circular_image"
+        android:layout_centerHorizontal="true"
+        android:src ="@drawable/ic_add_circle_black_24dp"/>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="150dp"
+        android:visibility="gone"
+        android:id="@+id/parent"
+        android:layout_below="@id/circular_image"
+        android:layout_centerHorizontal="true">
+        <Button
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:id="@+id/no"
+            android:layout_marginRight="72dp"
+            android:background="@drawable/ic_close_circle_24dp"/>
+        <Button
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:id="@+id/ok"
+            android:layout_marginLeft="72dp"
+            android:background="@drawable/ic_check_circle_24dp"/>
+
+    </LinearLayout>
+    </RelativeLayout>
+</RelativeLayout>

@@ -1,4 +1,4 @@
-package com.pewds.oussa.pleixt.models;
+package com.pewds.oussa.Pox.models;
 
 public class conversation {
     private String userName;

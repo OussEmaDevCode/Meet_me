@@ -1,4 +1,4 @@
-package com.pewds.oussa.pleixt.Maps;
+package com.pewds.oussa.Pox.Maps;
 
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
@@ -27,7 +27,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.pewds.oussa.pleixt.R;
+import com.pewds.oussa.Pox.R;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
     private LocationManager mLocationManager;

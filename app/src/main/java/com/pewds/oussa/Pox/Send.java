@@ -1,4 +1,4 @@
-package com.pewds.oussa.pleixt;
+package com.pewds.oussa.Pox;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -31,9 +31,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.pewds.oussa.pleixt.Maps.MapsActivity;
-import com.pewds.oussa.pleixt.models.ChatMessage;
-import com.pewds.oussa.pleixt.models.conversation;
+import com.pewds.oussa.Pox.Maps.MapsActivity;
+import com.pewds.oussa.Pox.models.ChatMessage;
+import com.pewds.oussa.Pox.models.conversation;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;

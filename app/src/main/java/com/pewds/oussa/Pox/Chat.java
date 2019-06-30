@@ -1,4 +1,4 @@
-package com.pewds.oussa.pleixt;
+package com.pewds.oussa.Pox;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -16,6 +16,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.ImageView;
@@ -33,9 +35,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.pewds.oussa.pleixt.Maps.MapsActivity;
-import com.pewds.oussa.pleixt.Maps.ShowActivity;
-import com.pewds.oussa.pleixt.models.ChatMessage;
+import com.pewds.oussa.Pox.Maps.MapsActivity;
+import com.pewds.oussa.Pox.Maps.ShowActivity;
+import com.pewds.oussa.Pox.models.ChatMessage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,8 +53,11 @@ public class Chat extends AppCompatActivity {
     Boolean stop = false;
     MonitoringEditText input;
     DatabaseReference conversation;
+    String poxtext;
+    List<Double> poxCoords = new ArrayList<>();
     ClipboardManager clipboard;
-
+    DatabaseReference me;
+    String old;
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,26 +67,68 @@ public class Chat extends AppCompatActivity {
             startActivity(new Intent(Chat.this, MainActivity.class));
             this.finish();
         }
+        me = FirebaseDatabase.getInstance().getReference().child("Users").child(mAuth.getCurrentUser().getUid());
+        me.keepSynced(true);
+        me.child("pox").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                String[] pox = dataSnapshot.getValue().toString().split(",");
+                poxtext = pox[0];
+                poxCoords.add(Double.valueOf(pox[1]));
+                poxCoords.add(Double.valueOf(pox[2]));
+                poxCoords.add(Double.valueOf(pox[3]));
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
         clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         setContentView(R.layout.activity_chat);
         input = findViewById(R.id.input);
         progressBar = findViewById(R.id.progress);
         nothing = findViewById(R.id.nothing);
-        FloatingActionButton fab = findViewById(R.id.fab);
+        final FloatingActionButton fab = findViewById(R.id.fab);
         map = findViewById(R.id.map);
         setTitle(getIntent().getStringExtra("name"));
+        input.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+             old = s.toString();
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if(s.length()>0){
+                    fab.setImageResource(R.drawable.ic_send_black_24dp);
+                }else {
+                    fab.setImageResource(R.drawable.ic_flash);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
         conversation = FirebaseDatabase.getInstance().getReference().child("hi").child(getIntent().getStringExtra("key"));
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (isOnline()) {
-                    if (input.getText() != null && !input.getText().toString().isEmpty()) {
-
+                    if (input.getText() != null && !input.getText().toString().trim().isEmpty()) {
                         conversation.push()
-                                .setValue(new ChatMessage(input.getText().toString(),
+                                .setValue(new ChatMessage(input.getText().toString().trim(),
                                         FirebaseAuth.getInstance()
                                                 .getCurrentUser()
                                                 .getDisplayName(), place, mAuth.getCurrentUser().getUid()));
+                    }else{
+                        conversation.push()
+                                .setValue(new ChatMessage(poxtext,
+                                        FirebaseAuth.getInstance()
+                                                .getCurrentUser()
+                                                .getDisplayName(), poxCoords, mAuth.getCurrentUser().getUid()));
                     }
                     input.clearFocus();
                     input.setText("");
@@ -111,7 +158,10 @@ public class Chat extends AppCompatActivity {
                 if(clipboard.getPrimaryClip() != null) {
                     String paste = clipboard.getPrimaryClip().getItemAt(0).getText().toString();
                     String[] data = paste.split(",");
-                    input.setText(data[0]);
+                    String t = old;
+                    input.setText("");
+                    input.setText(t+data[0]);
+                    input.setSelection(input.getText().toString().length());
                     if(data.length > 2) {
                         place.add(Double.valueOf(data[1]));
                         place.add(Double.valueOf(data[2]));
@@ -155,7 +205,6 @@ public class Chat extends AppCompatActivity {
                 TextView messageTextMe = v.findViewById(R.id.message_text_me);
                 TextView messageTextHim = v.findViewById(R.id.message_text_him);
                 TextView messageTime = v.findViewById(R.id.message_time);
-                View messages = v.findViewById(R.id.messages);
                 ImageView locationMe = v.findViewById(R.id.place_me);
                 ImageView locationHim = v.findViewById(R.id.place_him);
                 if (!model.getMessageUserId().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
@@ -171,6 +220,18 @@ public class Chat extends AppCompatActivity {
                     }
 
                     messageTextHim.setText(model.getMessageText());
+                    messageTextHim.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if(model.getMessagelocation() != null) {
+                                Intent show = new Intent(Chat.this, ShowActivity.class);
+                                show.putExtra("lat", model.getMessagelocation().get(0));
+                                show.putExtra("long", model.getMessagelocation().get(1));
+                                show.putExtra("zoom", model.getMessagelocation().get(2));
+                                startActivity(show);
+                            }
+                        }
+                    });
                     messageTextHim.setOnLongClickListener(new View.OnLongClickListener() {
                         @Override
                         public boolean onLongClick(View v) {
@@ -200,6 +261,18 @@ public class Chat extends AppCompatActivity {
                         locationMe.setVisibility(View.GONE);
                     }
                     messageTextMe.setText(model.getMessageText());
+                    messageTextMe.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if(model.getMessagelocation() != null) {
+                                Intent show = new Intent(Chat.this, ShowActivity.class);
+                                show.putExtra("lat", model.getMessagelocation().get(0));
+                                show.putExtra("long", model.getMessagelocation().get(1));
+                                show.putExtra("zoom", model.getMessagelocation().get(2));
+                                startActivity(show);
+                            }
+                        }
+                    });
                     messageTextMe.setOnLongClickListener(new View.OnLongClickListener() {
                         @Override
                         public boolean onLongClick(View v) {
@@ -218,7 +291,6 @@ public class Chat extends AppCompatActivity {
                         }
                     });
                 }
-                // Set their text
                 String time = DateFormat.format("dd MMM",
                         model.getMessageTime()).toString() + " at " + DateFormat.format("HH:mm",
                         model.getMessageTime()).toString();
@@ -232,19 +304,6 @@ public class Chat extends AppCompatActivity {
                         messageTime.setVisibility(View.VISIBLE);
                     }
                 }
-
-                messages.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if(model.getMessagelocation() != null) {
-                            Intent show = new Intent(Chat.this, ShowActivity.class);
-                            show.putExtra("lat", model.getMessagelocation().get(0));
-                            show.putExtra("long", model.getMessagelocation().get(1));
-                            show.putExtra("zoom", model.getMessagelocation().get(2));
-                            startActivity(show);
-                        }
-                    }
-                });
             }
         };
         listOfMessages.setAdapter(adapter);

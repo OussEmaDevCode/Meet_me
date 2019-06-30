@@ -50,7 +50,7 @@
             android:src="@drawable/ic_add_location_black_24dp"
             app:backgroundTint="@color/colorPrimary"
             app:fabSize="mini" />
-        <com.pewds.oussa.pleixt.MonitoringEditText
+        <com.pewds.oussa.Pox.MonitoringEditText
             android:background="@drawable/rounded"
             android:layout_marginTop="1dp"
             android:layout_weight="2"
@@ -69,10 +69,9 @@
             android:layout_marginLeft="8dp"
             android:scaleType="center"
             android:layout_marginRight="8dp"
-            android:src="@drawable/ic_send_black_24dp"
+            android:src="@drawable/ic_flash"
             app:backgroundTint="@color/colorPrimary"
             app:fabSize="mini"    />
-
     </LinearLayout>
     <ListView
         android:layout_width="match_parent"

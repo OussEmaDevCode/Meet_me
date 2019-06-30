@@ -1,13 +1,15 @@
-package com.pewds.oussa.pleixt.models;
+package com.pewds.oussa.Pox.models;
 
 public class StoredUser {
     private String userName;
     private String userId;
     private String photoUri;
-    public StoredUser(String userName, String userId, String photoUri){
+    private String pox;
+    public StoredUser(String userName, String userId, String photoUri, String pox){
         this.userId = userId;
         this.userName = userName;
         this.photoUri = photoUri;
+        this.pox = pox;
     }
 public StoredUser(){}
     public String getUserId() {
@@ -32,5 +34,13 @@ public StoredUser(){}
 
     public void setPhotoUri(String photoUri) {
         this.photoUri = photoUri;
+    }
+
+    public String getPox() {
+        return pox;
+    }
+
+    public void setPox(String pox) {
+        this.pox = pox;
     }
 }

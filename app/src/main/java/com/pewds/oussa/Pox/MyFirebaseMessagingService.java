@@ -1,4 +1,4 @@
-package com.pewds.oussa.pleixt;
+package com.pewds.oussa.Pox;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;

@@ -1,4 +1,4 @@
-package com.pewds.oussa.pleixt;
+package com.pewds.oussa.Pox;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -7,7 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.RemoteViews;
 
-import com.pewds.oussa.pleixt.database.Load;
+import com.pewds.oussa.Pox.database.Load;
 
 /**
  * Implementation of App Widget functionality.
