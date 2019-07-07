@@ -127,42 +127,68 @@ public class Send extends AppCompatActivity {
             @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
             @Override
             protected void populateView(View v, final conversation model, int position) {
-                TextView name = v.findViewById(R.id.conver);
+                final TextView name = v.findViewById(R.id.conver);
                 final CircleImageView profile = v.findViewById(R.id.profile);
                 final TextView last = v.findViewById(R.id.last);
-                View parent = v.findViewById(R.id.parent);
-                name.setText(model.getUserName());
-                last.setText("new !");
+                final View parent = v.findViewById(R.id.parent);
                 profile.setImageResource(R.drawable.ic_person_black_24dp);
-                last(model.getConversationId(),last);
-                Picasso.get()
-                        .load(model.getPhotoUri())
-                        .resize(58, 58)
-                        .centerCrop()
-                        .into(profile);
-                parent.setOnClickListener(new View.OnClickListener() {
+                String uId;
+                String[] id = model.getConversationId().split(",");
+                uId = id[0].equals(mAuth.getCurrentUser().getUid())? id[1] : id[0];
+                FirebaseDatabase.getInstance().getReference()
+                        .child("Users")
+                        .child(uId).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
-                    public void onClick(View v) {
-                        if(isOnline()) {
-                            if (message.getText() != null && !message.getText().toString().isEmpty()) {
-                                FirebaseDatabase.getInstance().getReference().child("hi").child(model.getConversationId()).push()
-                                        .setValue(new ChatMessage(message.getText().toString(),
-                                                FirebaseAuth.getInstance()
-                                                        .getCurrentUser()
-                                                        .getDisplayName(), place, mAuth.getCurrentUser().getUid()))
-                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if(task.isSuccessful()){
-                                            Toast.makeText(getApplicationContext(),"sent",Toast.LENGTH_SHORT).show();
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if(dataSnapshot.getValue() != null){
+                            String photoUri = dataSnapshot.child("photoUri").getValue().toString();
+                            final String UserName = dataSnapshot.child("userName").getValue().toString();
+                            name.setText(UserName);
+                            if(photoUri!= null && !photoUri.equals("")) {
+                                Picasso.get()
+                                        .load(photoUri)
+                                        .resize(58, 58)
+                                        .centerCrop()
+                                        .into(profile);
+                            }else {
+                                profile.setImageResource(R.drawable.ic_person_black_24dp);
+                            }
+                            last.setText("new !");
+                            last(model.getConversationId(),last);
+                            parent.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    if(isOnline()) {
+                                        if (message.getText() != null && !message.getText().toString().isEmpty()) {
+                                            FirebaseDatabase.getInstance().getReference().child("hi").child(model.getConversationId()).push()
+                                                    .setValue(new ChatMessage(message.getText().toString(),
+                                                            FirebaseAuth.getInstance()
+                                                                    .getCurrentUser()
+                                                                    .getDisplayName(), place, mAuth.getCurrentUser().getUid()))
+                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                            if(task.isSuccessful()){
+                                                                Toast.makeText(getApplicationContext(),"sent",Toast.LENGTH_SHORT).show();
+                                                            }
+                                                        }
+                                                    });
+                                            last(model.getConversationId(),last);
                                         }
                                     }
-                                });
-                                last(model.getConversationId(),last);
-                            }
+                                }
+                            });
                         }
                     }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
                 });
+
+
+
             }
         };
         me.child("conversations").addValueEventListener(new ValueEventListener() {

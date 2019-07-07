@@ -57,15 +57,6 @@ public class Principal extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
         mAuth = FirebaseAuth.getInstance();
-        mAuth.addAuthStateListener(new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                if (firebaseAuth.getCurrentUser() == null) {
-                    startActivity(new Intent(Principal.this, MainActivity.class));
-                    finish();
-                }
-            }
-        });
         setContentView(R.layout.activity_principal);
         semi = findViewById(R.id.semi);
         listOfNames = findViewById(R.id.list_of_names);
@@ -96,24 +87,8 @@ public class Principal extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.signOut) {
-            final AlertDialog.Builder signOut = new AlertDialog.Builder(this).setTitle("Sign out")
-                    .setMessage("Are you sure you want to sign out ?")
-                    .setIcon(R.drawable.exit_black)
-                    .setCancelable(true)
-                    .setPositiveButton("yes", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            mAuth.signOut();
-                        }
-                    }).setNegativeButton("no", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-
-                        }
-                    });
-            AlertDialog a = signOut.create();
-            a.show();
+        if (item.getItemId() == R.id.settings) {
+            startActivity(new Intent(Principal.this,Settings.class));
         }else if(item.getItemId() == R.id.share){
             startActivity(new Intent(Principal.this,Send.class));
         }
@@ -190,7 +165,7 @@ public class Principal extends AppCompatActivity {
                 name.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        final String creation = mAuth.getCurrentUser().getUid()+model.getUserId();
+                        final String creation = mAuth.getCurrentUser().getUid()+","+model.getUserId();
                         me.child("conversations").addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -199,22 +174,13 @@ public class Principal extends AppCompatActivity {
 
                                     me.child("conversations")
                                             .child(model.getUserId())
-                                            .setValue(new conversation(model.getUserName(),creation, model.getPhotoUri()));
+                                            .setValue(new conversation(creation));
                                     //---------------------------him----------------------------
-                                    if(mAuth.getCurrentUser().getPhotoUrl() != null) {
                                         FirebaseDatabase.getInstance().getReference().child("Users")
                                                 .child(model.getUserId())
                                                 .child("conversations")
                                                 .child(mAuth.getCurrentUser().getUid())
-                                                .setValue(new conversation(mAuth.getCurrentUser().getDisplayName(), creation,
-                                                        mAuth.getCurrentUser().getPhotoUrl().toString()));
-                                    }else {
-                                        FirebaseDatabase.getInstance().getReference().child("Users")
-                                                .child(model.getUserId())
-                                                .child("conversations")
-                                                .child(mAuth.getCurrentUser().getUid())
-                                                .setValue(new conversation(mAuth.getCurrentUser().getDisplayName(), creation, " "));
-                                    }
+                                                .setValue(new conversation(creation));
                                     Toast.makeText(getApplicationContext(),"You're now friend with "+model.getUserName(),Toast.LENGTH_LONG).show();
 
                                 }else {
@@ -248,27 +214,46 @@ public class Principal extends AppCompatActivity {
             @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
             @Override
             protected void populateView(View v, final conversation model, int position) {
-                TextView name = v.findViewById(R.id.conver);
+                final TextView name = v.findViewById(R.id.conver);
                 final CircleImageView profile = v.findViewById(R.id.profile);
                 final TextView last = v.findViewById(R.id.last);
-                View parent = v.findViewById(R.id.parent);
-                name.setText(model.getUserName());
-                last.setText("new !");
+                final View parent = v.findViewById(R.id.parent);
                 profile.setImageResource(R.drawable.ic_person_black_24dp);
-                last(model.getConversationId(),last);
-                if(model.getPhotoUri()!= null && !model.getPhotoUri().equals(" ")) {
-                    Picasso.get()
-                            .load(model.getPhotoUri())
-                            .resize(58, 58)
-                            .centerCrop()
-                            .into(profile);
-                }else {
-                    profile.setImageResource(R.drawable.ic_person_black_24dp);
-                }
-                parent.setOnClickListener(new View.OnClickListener() {
+                String uId;
+                String[] id = model.getConversationId().split(",");
+                uId = id[0].equals(mAuth.getCurrentUser().getUid())? id[1]:id[0];
+                FirebaseDatabase.getInstance().getReference()
+                        .child("Users")
+                        .child(uId).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
-                    public void onClick(View v) {
-                        startActivity(new Intent(Principal.this,Chat.class).putExtra("key",model.getConversationId()).putExtra("name",model.getUserName()));
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if(dataSnapshot.getValue() != null){
+                            String photoUri = dataSnapshot.child("photoUri").getValue().toString();
+                            final String UserName = dataSnapshot.child("userName").getValue().toString();
+                            name.setText(UserName);
+                            if(photoUri!= null && !photoUri.equals("")) {
+                                Picasso.get()
+                                        .load(photoUri)
+                                        .resize(58, 58)
+                                        .centerCrop()
+                                        .into(profile);
+                            }else {
+                                profile.setImageResource(R.drawable.ic_person_black_24dp);
+                            }
+                            last.setText("new !");
+                            last(model.getConversationId(),last);
+                            parent.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    startActivity(new Intent(Principal.this,Chat.class).putExtra("key",model.getConversationId()).putExtra("name",UserName));
+                                }
+                            });
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
                     }
                 });
             }

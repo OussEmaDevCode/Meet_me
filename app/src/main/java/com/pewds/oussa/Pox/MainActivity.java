@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.viewpager.widget.ViewPager;
+import com.pewds.oussa.Pox.NonSwipeableViewPager;
 
 import android.content.Context;
 import android.content.Intent;
@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
     String Pass;
     String Email;
     String Name;
-    ViewPager vpPager;
+    NonSwipeableViewPager vpPager;
     FragmentPagerAdapter adapterViewPager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         vpPager.setAdapter(adapterViewPager);
         try {
             Field mScroller;
-            mScroller = ViewPager.class.getDeclaredField("mScroller");
+            mScroller = NonSwipeableViewPager.class.getDeclaredField("mScroller");
             mScroller.setAccessible(true);
             FixedSpeedScroller scroller = new FixedSpeedScroller(vpPager.getContext());
             mScroller.set(vpPager, scroller);
@@ -161,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
     private void uploadBitmap() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         if (image != null) {
-            image.compress(Bitmap.CompressFormat.JPEG, 20, baos);
+            image.compress(Bitmap.CompressFormat.JPEG, 50, baos);
         }
         byte[] data = baos.toByteArray();
         final StorageReference filePath = FirebaseStorage.getInstance().getReference().child("images").child(user.getUid());

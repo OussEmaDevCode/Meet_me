@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_marginTop="12dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/sets"
+    android:orientation="vertical"
+    tools:context=".Settings">
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="16dp"
+    android:layout_marginBottom="12dp"
+    android:layout_marginRight="8dp"
+    android:orientation="horizontal">
+    <RelativeLayout
+        android:layout_width="150dp"
+        android:layout_height="150dp">
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/editPhoto"
+            app:fabCustomSize="50dp"
+            android:layout_alignParentBottom="true"
+            app:backgroundTint="@color/colorPrimary"
+            android:layout_alignParentRight="true"
+            android:layout_margin="4dp"
+            android:src="@drawable/ic_edit_black_24dp"/>
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:id="@+id/photo"
+        android:src ="@drawable/ic_profile_user"/>
+    </RelativeLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginLeft="24dp"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Oussama Hassini"
+            android:id="@+id/userName"
+            android:textSize="24dp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/date"
+            tools:text="joined pox on mars 2019"
+            android:layout_marginTop="8dp"
+            android:textSize="18sp" />
+    </LinearLayout>
+</LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@android:color/darker_gray"
+        android:focusable="true"
+        android:focusableInTouchMode="true"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Name"
+        android:layout_marginLeft="16dp"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="15dp" />
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Name"
+        android:singleLine="true"
+        android:inputType="text"
+        android:id="@+id/editName"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Pox"
+        android:layout_marginLeft="16dp"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="15dp" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:orientation="horizontal">
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Pox"
+        android:id="@+id/ediTpox"
+        android:singleLine="true"
+        android:inputType="text"
+        android:layout_weight="2"/>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/map"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:src="@drawable/ic_add_location_black_24dp"
+            app:backgroundTint="@color/colorPrimary"
+            android:layout_marginTop="8dp"
+            app:fabSize="mini" />
+    </LinearLayout>
+</LinearLayout>

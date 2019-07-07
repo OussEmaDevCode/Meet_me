@@ -14,8 +14,8 @@
         android:icon="@drawable/ic_edit_black_24dp"
         app:showAsAction="always"/>
     <item
-        android:id="@+id/signOut"
-        android:title="Sign out"
-        android:icon="@drawable/ic_exit"
+        android:id="@+id/settings"
+        android:title="Settings"
+        android:icon="@drawable/ic_settings_black_24dp"
         app:showAsAction="always"/>
 </menu>

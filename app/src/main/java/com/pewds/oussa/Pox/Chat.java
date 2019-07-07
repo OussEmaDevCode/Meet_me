@@ -73,10 +73,13 @@ public class Chat extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 String[] pox = dataSnapshot.getValue().toString().split(",");
+
                 poxtext = pox[0];
-                poxCoords.add(Double.valueOf(pox[1]));
-                poxCoords.add(Double.valueOf(pox[2]));
-                poxCoords.add(Double.valueOf(pox[3]));
+                if(pox.length > 2) {
+                    poxCoords.add(Double.valueOf(pox[1]));
+                    poxCoords.add(Double.valueOf(pox[2]));
+                    poxCoords.add(Double.valueOf(pox[3]));
+                }
             }
 
             @Override

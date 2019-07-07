@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Pox</string>
+    <string name="app_name_pox">1Pox</string>
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_maps2">Map</string>
     <string name="appwidget_text">EXAMPLE</string>

@@ -11,17 +11,17 @@
 
     <application
         android:allowBackup="true"
-        android:largeHeap="true"
         android:hardwareAccelerated="false"
-        android:supportsRtl="true"
         android:icon="@mipmap/pleixt"
-        android:label="@string/app_name"
+        android:label="@string/app_name_pox"
+        android:largeHeap="true"
         android:roundIcon="@mipmap/pleixt"
+        android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.pewds.oussa.Pox.MainActivity"
+            android:name=".MainActivity"
             android:theme="@style/mainTheme" />
-        <activity android:name="com.pewds.oussa.Pox.Chat" />
+        <activity android:name=".Chat" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -35,14 +35,14 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name="com.pewds.oussa.Pox.Maps.MapsActivity"
+            android:name=".Maps.MapsActivity"
             android:label="@string/title_activity_maps" />
         <activity
-            android:name="com.pewds.oussa.Pox.Maps.ShowActivity"
+            android:name=".Maps.ShowActivity"
             android:label="@string/title_activity_maps2" />
-        <activity android:name="com.pewds.oussa.Pox.Principal" />
+        <activity android:name=".Principal" />
         <activity
-            android:name="com.pewds.oussa.Pox.database.Load"
+            android:name=".database.Load"
             android:theme="@style/mainTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -55,7 +55,7 @@
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
         </activity>
-        <activity android:name="com.pewds.oussa.Pox.Send">
+        <activity android:name=".Send">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
 
@@ -65,7 +65,7 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name="com.pewds.oussa.Pox.Share">
+        <receiver android:name=".Share">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -76,28 +76,34 @@
         </receiver>
 
         <activity
-            android:name="com.pewds.oussa.Pox.Intro"
-            android:theme="@style/mainTheme"/>
+            android:name=".Intro"
+            android:theme="@style/mainTheme" />
+
         <service
-            android:name="com.pewds.oussa.Pox.MyFirebaseMessagingService"
+            android:name=".MyFirebaseMessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/ic_speech_bubble" />
-        <!-- Set color used with incoming notification messages. This is used when no color is set for the incoming
-             notification message. See README(https://goo.gl/6BKBk7) for more. -->
+        <!--
+             Set color used with incoming notification messages. This is used when no color is set for the incoming
+             notification message. See README(https://goo.gl/6BKBk7) for more.
+        -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorPrimary" />
-
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="5ffa951786ec7b54cdbcb9f45646e218ebc8adf0" />
 
+        <activity android:name=".Settings" />
+        <activity android:name=".editsActivity"
+            android:theme="@style/mainTheme"></activity>
     </application>
 
 </manifest>
