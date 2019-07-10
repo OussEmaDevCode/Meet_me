@@ -103,7 +103,7 @@ public class Chat extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(s.length()>0){
+                if(s.toString().trim().length()>0){
                     fab.setImageResource(R.drawable.ic_send_black_24dp);
                 }else {
                     fab.setImageResource(R.drawable.ic_flash);

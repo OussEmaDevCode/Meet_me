@@ -64,6 +64,7 @@ public class Settings extends AppCompatActivity {
     FloatingActionButton fab;
     CircleImageView circleImageView;
     String PhotoUri;
+    EditText pox;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,13 +87,13 @@ public class Settings extends AppCompatActivity {
                 .create();
         circleImageView = findViewById(R.id.photo);
         PhotoUri = mAuth.getCurrentUser().getPhotoUrl().toString();
-        if(PhotoUri!= null && !PhotoUri.equals("")) {
+        if (PhotoUri != null && !PhotoUri.equals("")) {
             Picasso.get()
                     .load(PhotoUri)
                     .resize(150, 150)
                     .centerCrop()
                     .into(circleImageView);
-        }else {
+        } else {
             circleImageView.setImageResource(R.drawable.ic_profile_user);
         }
         name = findViewById(R.id.userName);
@@ -100,9 +101,9 @@ public class Settings extends AppCompatActivity {
         TextView date = findViewById(R.id.date);
         String time = DateFormat.format("MMMM yyyy",
                 mAuth.getCurrentUser().getMetadata().getCreationTimestamp()).toString();
-        date.setText("joined pox on "+time);
+        date.setText("joined pox on " + time);
         fab = findViewById(R.id.map);
-        final EditText pox = findViewById(R.id.ediTpox);
+        pox = findViewById(R.id.ediTpox);
         FirebaseDatabase.getInstance().getReference()
                 .child("Users")
                 .child(mAuth.getCurrentUser().getUid())
@@ -111,7 +112,7 @@ public class Settings extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 String[] poxValue = dataSnapshot.getValue().toString().split(",");
                 pox.setText(poxValue[0]);
-                if(poxValue.length>2){
+                if (poxValue.length > 2) {
                     stop = true;
                     fab.setImageResource(R.drawable.ic_close_black_24dp);
                     place.add(Double.valueOf(poxValue[1]));
@@ -129,22 +130,22 @@ public class Settings extends AppCompatActivity {
         pox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if(actionId == EditorInfo.IME_ACTION_DONE && isOnline()){
+                if (actionId == EditorInfo.IME_ACTION_DONE && isOnline() && pox.getText() != null && !pox.getText().toString().trim().equals("")) {
                     OnCompleteListener onCompleteListener = new OnCompleteListener() {
                         @Override
                         public void onComplete(@NonNull Task task) {
-                            if(task.isSuccessful()){
-                                Toast.makeText(getApplicationContext(),"Pox changed",Toast.LENGTH_SHORT).show();
+                            if (task.isSuccessful()) {
+                                Toast.makeText(getApplicationContext(), "Pox changed", Toast.LENGTH_SHORT).show();
                             }
                         }
                     };
-                    if(place.size()>1) {
+                    if (place.size() > 1) {
                         FirebaseDatabase.getInstance().getReference().child("Users").child(mAuth.getCurrentUser().getUid())
                                 .child("pox").setValue(pox.getText().toString()
-                                +","+Double.toString(place.get(0))
-                                +","+Double.toString(place.get(1))
-                                +","+Double.toString(place.get(2))).addOnCompleteListener(onCompleteListener);
-                    }else {
+                                + "," + Double.toString(place.get(0))
+                                + "," + Double.toString(place.get(1))
+                                + "," + Double.toString(place.get(2))).addOnCompleteListener(onCompleteListener);
+                    } else {
                         FirebaseDatabase.getInstance().getReference().child("Users").child(mAuth.getCurrentUser().getUid())
                                 .child("pox").setValue(pox.getText().toString()).addOnCompleteListener(onCompleteListener);
                     }
@@ -171,31 +172,32 @@ public class Settings extends AppCompatActivity {
         nameEdit.setImeOptions(EditorInfo.IME_ACTION_DONE);
         nameEdit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event){
-                if(actionId == EditorInfo.IME_ACTION_DONE){
-                    if(isOnline() && checkName(nameEdit) && !nameEdit.getText().toString().equals(mAuth.getCurrentUser().getDisplayName())){
-                    alert.show();
-                    FirebaseDatabase.getInstance().getReference().child("Users").addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            Boolean present = false;
-                            for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                                if (ds.child("userName").getValue().equals(nameEdit.getText().toString())) {
-                                    nameEdit.setError("User name already exists");
-                                    alert.dismiss();
-                                    present = true;
-                                    break;
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    if (isOnline() && checkName(nameEdit) && !nameEdit.getText().toString().equals(mAuth.getCurrentUser().getDisplayName())) {
+                        alert.show();
+                        FirebaseDatabase.getInstance().getReference().child("Users").addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                Boolean present = false;
+                                for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                                    if (ds.child("userName").getValue().equals(nameEdit.getText().toString())) {
+                                        nameEdit.setError("User name already exists");
+                                        alert.dismiss();
+                                        present = true;
+                                        break;
+                                    }
+                                }
+                                if (!present) {
+                                    addUserNameToUser(nameEdit.getText().toString(), mAuth.getCurrentUser());
                                 }
                             }
-                            if (!present) {
-                                addUserNameToUser(nameEdit.getText().toString(),mAuth.getCurrentUser());
-                            }
-                        }
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                        }
-                    });
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        });
                     }
                     return true;
                 }
@@ -215,13 +217,13 @@ public class Settings extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.settings,menu);
+        getMenuInflater().inflate(R.menu.settings, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == R.id.signOut) {
+        if (item.getItemId() == R.id.signOut) {
             final AlertDialog.Builder signOut = new AlertDialog.Builder(Settings.this).setTitle("Sign out")
                     .setMessage("Are you sure you want to sign out ?")
                     .setIcon(R.drawable.exit_black)
@@ -239,7 +241,7 @@ public class Settings extends AppCompatActivity {
                     });
             AlertDialog a = signOut.create();
             a.show();
-        }else if(item.getItemId() == android.R.id.home){
+        } else if (item.getItemId() == android.R.id.home) {
             finish();
         }
         return super.onOptionsItemSelected(item);
@@ -255,10 +257,26 @@ public class Settings extends AppCompatActivity {
                 place.add((double) data.getFloatExtra("zoom", 0));
                 fab.setImageResource(R.drawable.ic_close_black_24dp);
                 stop = true;
+                if (isOnline() && pox.getText() != null && !pox.getText().toString().trim().equals("")) {
+                    FirebaseDatabase.getInstance().getReference().child("Users").child(mAuth.getCurrentUser().getUid())
+                            .child("pox").setValue(pox.getText().toString()
+                            + "," + Double.toString(place.get(0))
+                            + "," + Double.toString(place.get(1))
+                            + "," + Double.toString(place.get(2))).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if(task.isSuccessful()){
+                                Toast.makeText(getApplicationContext(), "Pox changed", Toast.LENGTH_SHORT).show();
+
+                            }
+                        }
+                    });
+                }
             }
         }
     }
-    public boolean checkName(EditText user){
+
+    public boolean checkName(EditText user) {
         boolean status = true;
         if (user.getText() == null || user.getText().toString().trim().isEmpty()) {
             status = false;
@@ -272,6 +290,7 @@ public class Settings extends AppCompatActivity {
         }
         return status;
     }
+
     public boolean isOnline() {
         ConnectivityManager cm =
                 (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -281,6 +300,7 @@ public class Settings extends AppCompatActivity {
         }
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
+
     private void addUserNameToUser(final String Name, final FirebaseUser user) {
         String username = Name;
 
@@ -291,7 +311,7 @@ public class Settings extends AppCompatActivity {
         user.updateProfile(profileUpdates).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()){
+                if (task.isSuccessful()) {
                     FirebaseDatabase.getInstance()
                             .getReference()
                             .child("Users")
@@ -300,7 +320,7 @@ public class Settings extends AppCompatActivity {
                             .setValue(Name);
                     name.setText(Name);
                     alert.dismiss();
-                    Toast.makeText(getApplicationContext(),"Username changed",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Username changed", Toast.LENGTH_SHORT).show();
                 }
             }
         });
